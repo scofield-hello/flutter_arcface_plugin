@@ -28,12 +28,12 @@ android {
         minSdkVersion 16
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+/*
     sourceSets {
         main{
             jniLibs.srcDir 'libs'
         }
-    }
+    }*/
 
     lintOptions {
         disable 'InvalidPackage'
