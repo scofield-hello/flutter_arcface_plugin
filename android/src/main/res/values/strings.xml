@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">ArcFaceDemo</string>
+
+    <string name="permission_denied">权限被拒绝！</string>
+    <string name="active_engine">激活引擎</string>
+    <string name="active_success">激活引擎成功</string>
+    <string name="already_activated">引擎已激活，无需再次激活</string>
+    <string name="active_failed">引擎激活失败，错误码为 %d</string>
+    <string name="init_failed">引擎初始化失败，错误码为 %d</string>
+    <string name="engine_not_initialized">引擎未初始化，错误码为 %d</string>
+    <string name="compare_failed">比对失败，错误码为 %d</string>
+    <string name="active_h1">在线教育实人认证</string>
+    <string name="active_h2">开启您的专属通道，更快、更智能</string>
+    <string name="active_button_compare">进入人脸认证</string>
+    <string name="active_button_register">进入人脸注册</string>
+    <string name="detect_default_tips">拿起手机，眨眨眼</string>
+    <string name="detect_many_face_tips">不允许出现多张人脸</string>
+    <string name="detect_eyes_tips">请眨一眨您的眼睛</string>
+    <string name="detect_center_tips">请将人脸居于中心位置</string>
+    <string name="retry_compare">比对失败，点击重试</string>
+    <string name="extract_feature_success">人脸特征提取成功</string>
+    <string name="extract_feature_failed">人脸特征提取失败</string>
+    <string name="compare_face_success">人脸比对成功</string>
+    <string name="compare_face_failed">人脸比对失败</string>
+</resources>
