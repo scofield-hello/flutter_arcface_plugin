@@ -99,10 +99,11 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
       activity.startActivityForResult(intent, ACTION_REQUEST_EXTRACT);
     } else if (call.method.equals(METHOD_RECOGNIZE)) {
       String srcFeatureData = call.argument("src_feature");
-      float similarThreshold = call.argument("similar_threshold");
+      double similarThreshold = call.argument("similar_threshold");
+      float floatSimilarThreshold = Float.parseFloat(Double.toString(similarThreshold));
       Log.d(TAG, "onMethodCall: src_feature: " + srcFeatureData);
       Log.d(TAG, "onMethodCall: similar_threshold: " + similarThreshold);
-      Intent intent = DetectActivity.recognize(activity, similarThreshold, srcFeatureData);
+      Intent intent = DetectActivity.recognize(activity, floatSimilarThreshold, srcFeatureData);
       activity.startActivityForResult(intent, ACTION_REQUEST_RECOGNIZE);
     } else {
       result.notImplemented();
@@ -139,7 +140,7 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
           JSONObject jsonObject = new JSONObject();
           jsonObject.putOpt("feature", feature);
           jsonObject.putOpt("image", imageUri);
-          mResultSetter.success(jsonObject);
+          mResultSetter.success(jsonObject.toString(4));
         } catch (JSONException e) {
           mResultSetter.error("数据传递异常.", null, null);
         }
