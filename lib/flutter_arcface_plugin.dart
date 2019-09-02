@@ -2,6 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+class ArcFaceResultCode {
+  final int OK = 0;
+  final int ALREADY_ACTIVED = 90114;
+}
+
 class FlutterArcfacePlugin {
   static const MethodChannel _channel = const MethodChannel('flutter_arcface_plugin');
 
