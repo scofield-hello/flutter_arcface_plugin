@@ -148,8 +148,8 @@ public class DetectActivity extends AppCompatActivity
     } catch (VerifyException e) {
       showMessage(e.getMessage());
       Intent errorResult = new Intent();
-      errorResult.putExtra("result_code", -1);
-      setResult(RESULT_OK, errorResult);
+      errorResult.putExtra("error", "参数传递错误.");
+      setResult(RESULT_FIRST_USER, errorResult);
       finish();
       return;
     }
@@ -533,6 +533,9 @@ public class DetectActivity extends AppCompatActivity
     Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
     if (afCode != ErrorInfo.MOK) {
       showMessage(getString(R.string.init_failed, afCode));
+      Intent errorResult = new Intent();
+      errorResult.putExtra("error", "人脸识别引擎初始化失败:" + afCode);
+      setResult(RESULT_FIRST_USER, errorResult);
       finish();
     }
   }

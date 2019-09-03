@@ -133,29 +133,47 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
   @Override
   public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == ACTION_REQUEST_EXTRACT) {
-      if (resultCode == Activity.RESULT_OK) {
-        try {
-          String feature = data.getStringExtra("feature");
-          String imageUri = data.getStringExtra("image");
-          JSONObject jsonObject = new JSONObject();
-          jsonObject.putOpt("feature", feature);
-          jsonObject.putOpt("image", imageUri);
-          mResultSetter.success(jsonObject.toString(4));
-        } catch (JSONException e) {
-          mResultSetter.error("数据传递异常.", null, null);
-        }
-      } else {
-        mResultSetter.error("人脸特征提取失败.", null, null);
+      switch (resultCode){
+        case Activity.RESULT_FIRST_USER:
+          String error = data.getStringExtra("error");
+          mResultSetter.error("PLUGIN_ERROR", error, null);
+          return true;
+        case Activity.RESULT_CANCELED:
+          mResultSetter.error("PLUGIN_ERROR", "用户已取消操作.", null);
+          return true;
+        case Activity.RESULT_OK:
+          try {
+            String feature = data.getStringExtra("feature");
+            String imageUri = data.getStringExtra("image");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.putOpt("feature", feature);
+            jsonObject.putOpt("image", imageUri);
+            mResultSetter.success(jsonObject.toString(4));
+          } catch (JSONException e) {
+            mResultSetter.error("PLUGIN_ERROR", "数据传递异常.", null);
+          }
+          return true;
+        default:
+          mResultSetter.error("PLUGIN_ERROR", "无效的错误码.", null);
+          return true;
       }
-      return true;
     } else if (requestCode == ACTION_REQUEST_RECOGNIZE) {
-      if (resultCode == Activity.RESULT_OK) {
-        float similar = data.getFloatExtra("similar", 0.0f);
-        mResultSetter.success(similar);
-      } else {
-        mResultSetter.error("人脸比对失败.", null, null);
+      switch (resultCode){
+        case Activity.RESULT_FIRST_USER:
+          String error = data.getStringExtra("error");
+          mResultSetter.error("PLUGIN_ERROR", error, null);
+          return true;
+        case Activity.RESULT_CANCELED:
+          mResultSetter.error("PLUGIN_ERROR", "用户已取消操作.", null);
+          return true;
+        case Activity.RESULT_OK:
+          float similar = data.getFloatExtra("similar", 0.0f);
+          mResultSetter.success(similar);
+          return true;
+        default:
+          mResultSetter.error("PLUGIN_ERROR", "无效的错误码.", null);
+          return true;
       }
-      return true;
     }
     return false;
   }

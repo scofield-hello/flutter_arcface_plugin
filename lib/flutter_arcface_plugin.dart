@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-class ArcFaceResultCode {
-  final int OK = 0;
-  final int ALREADY_ACTIVED = 90114;
+class ActiveCode {
+  static int OK = 0;
+  static int ALREADY_ACTIVED = 90114;
 }
 
 class FlutterArcfacePlugin {
@@ -13,10 +13,10 @@ class FlutterArcfacePlugin {
   ///激活SDK.
   ///[ak]: APP KEY
   ///[sk]: SDK KEY
-  static Future<int> active(String ak, String sk) async {
-    assert(ak != null && ak.isNotEmpty);
-    assert(sk != null && sk.isNotEmpty);
-    final int activeCode = await _channel.invokeMethod('active', {'ak': ak, 'sk': sk});
+  static Future<int> active(String appId, String sdkKey) async {
+    assert(appId != null && appId.isNotEmpty);
+    assert(sdkKey != null && sdkKey.isNotEmpty);
+    final int activeCode = await _channel.invokeMethod('active', {'ak': appId, 'sk': sdkKey});
     return activeCode;
   }
 
