@@ -25,59 +25,50 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-/**
- * @author Nickey
- */
-public class FlutterArcfacePlugin implements MethodCallHandler,
-    PluginRegistry.ActivityResultListener {
+/** @author Nickey */
+public class FlutterArcfacePlugin
+    implements MethodCallHandler, PluginRegistry.ActivityResultListener {
   private static final String TAG = "FlutterArcfacePlugin";
   private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
   private static final int ACTION_REQUEST_EXTRACT = 0x002;
   private static final int ACTION_REQUEST_RECOGNIZE = 0x003;
 
-  private final static String METHOD_ACTIVE = "active";
-  private final static String METHOD_EXTRACT = "extract";
-  private final static String METHOD_RECOGNIZE = "recognize";
-
-  private Result mResultSetter;
-
+  private static final String METHOD_ACTIVE = "active";
+  private static final String METHOD_EXTRACT = "extract";
+  private static final String METHOD_RECOGNIZE = "recognize";
   private static final String[] NEEDED_PERMISSIONS =
-      new String[]{
-          Manifest.permission.CAMERA,
-          Manifest.permission.READ_PHONE_STATE,
-          Manifest.permission.WRITE_EXTERNAL_STORAGE
+      new String[] {
+        Manifest.permission.CAMERA,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
       };
-  private static ThreadFactory threadFactory = new ThreadFactoryBuilder()
-      .setNameFormat("arcface_pool_%d")
-      .build();
-
-  private ExecutorService threadPool = new ThreadPoolExecutor(
-      1, 1, 0L, TimeUnit.MILLISECONDS,
-      new LinkedBlockingQueue<Runnable>(), threadFactory);
+  private static ThreadFactory threadFactory =
+      new ThreadFactoryBuilder().setNameFormat("arcface_pool_%d").build();
+  private Result mResultSetter;
+  private ExecutorService threadPool =
+      new ThreadPoolExecutor(
+          1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
 
   private Activity activity;
 
-  /**
-   * Plugin registration.
-   */
+  private FlutterArcfacePlugin(Activity activity) {
+    this.activity = activity;
+  }
+
+  /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
-    final MethodChannel channel = new MethodChannel(registrar.messenger(),
-        "flutter_arcface_plugin");
+    final MethodChannel channel =
+        new MethodChannel(registrar.messenger(), "flutter_arcface_plugin");
     final FlutterArcfacePlugin instance = new FlutterArcfacePlugin(registrar.activity());
     registrar.addActivityResultListener(instance);
     channel.setMethodCallHandler(instance);
-  }
-
-  private FlutterArcfacePlugin(Activity activity) {
-    this.activity = activity;
   }
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
     if (!checkPermissions()) {
       ActivityCompat.requestPermissions(activity, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
-      result.error("请完成授权后再操作.", null, null);
+      result.error("PERMISSION_DENIED.", "请在授予应用必要的权限后重试.", null);
       return;
     }
     mResultSetter = result;
@@ -91,7 +82,7 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
         int activeCode = future.get();
         result.success(activeCode);
       } catch (Exception e) {
-        result.error("激活失败.", null, null);
+        result.error("PLUGIN_ERROR", "人脸引擎激活出错.", null);
         Log.e(TAG, "激活任务执行失败", e);
       }
     } else if (call.method.equals(METHOD_EXTRACT)) {
@@ -112,20 +103,22 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
   }
 
   private Future<Integer> activeEngine(final String ak, final String sk) {
-    return threadPool.submit(new Callable<Integer>() {
-      @Override
-      public Integer call() throws Exception {
-        FaceEngine faceEngine = new FaceEngine();
-        return faceEngine.activeOnline(activity, ak, sk);
-      }
-    });
+    return threadPool.submit(
+        new Callable<Integer>() {
+          @Override
+          public Integer call() throws Exception {
+            FaceEngine faceEngine = new FaceEngine();
+            return faceEngine.activeOnline(activity, ak, sk);
+          }
+        });
   }
 
   private boolean checkPermissions() {
     boolean allGranted = true;
     for (String neededPermission : NEEDED_PERMISSIONS) {
-      allGranted &= ContextCompat.checkSelfPermission(activity, neededPermission)
-          == PackageManager.PERMISSION_GRANTED;
+      allGranted &=
+          ContextCompat.checkSelfPermission(activity, neededPermission)
+              == PackageManager.PERMISSION_GRANTED;
     }
     return allGranted;
   }
@@ -133,7 +126,7 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
   @Override
   public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == ACTION_REQUEST_EXTRACT) {
-      switch (resultCode){
+      switch (resultCode) {
         case Activity.RESULT_FIRST_USER:
           String error = data.getStringExtra("error");
           mResultSetter.error("PLUGIN_ERROR", error, null);
@@ -158,7 +151,7 @@ public class FlutterArcfacePlugin implements MethodCallHandler,
           return true;
       }
     } else if (requestCode == ACTION_REQUEST_RECOGNIZE) {
-      switch (resultCode){
+      switch (resultCode) {
         case Activity.RESULT_FIRST_USER:
           String error = data.getStringExtra("error");
           mResultSetter.error("PLUGIN_ERROR", error, null);
