@@ -1,4 +1,4 @@
-package com.chuangdun.flutter_arcface_plugin;
+package com.chuangdun.flutter.plugin.arcface;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,12 +36,12 @@ import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
-import com.chuangdun.flutter_arcface_plugin.model.FaceFeatureTask;
-import com.chuangdun.flutter_arcface_plugin.model.FaceFeatureTask.FaceFeatureTaskResult;
-import com.chuangdun.flutter_arcface_plugin.util.DrawHelper;
-import com.chuangdun.flutter_arcface_plugin.util.camera.CameraHelper;
-import com.chuangdun.flutter_arcface_plugin.util.camera.CameraListener;
-import com.chuangdun.flutter_arcface_plugin.widget.FaceRectView;
+import com.chuangdun.flutter.plugin.arcface.model.FaceFeatureTask;
+import com.chuangdun.flutter.plugin.arcface.model.FaceFeatureTask.FaceFeatureTaskResult;
+import com.chuangdun.flutter.plugin.arcface.util.DrawHelper;
+import com.chuangdun.flutter.plugin.arcface.util.camera.CameraHelper;
+import com.chuangdun.flutter.plugin.arcface.util.camera.CameraListener;
+import com.chuangdun.flutter.plugin.arcface.widget.FaceRectView;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Verify;

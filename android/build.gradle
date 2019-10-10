@@ -1,4 +1,4 @@
-group 'com.chuangdun.flutter_arcface_plugin'
+group 'com.chuangdun.flutter.plugin.arcface'
 version '1.0'
 
 buildscript {
@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir:  'libs' , include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.guava:guava:28.1-jre'
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 }

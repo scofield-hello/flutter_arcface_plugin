@@ -1,4 +1,4 @@
-package com.chuangdun.flutter_arcface_plugin.model;
+package com.chuangdun.flutter.plugin.arcface.model;
 
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;

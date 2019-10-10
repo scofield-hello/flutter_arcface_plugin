@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.chuangdun.flutter_arcface_plugin">
+  package="com.chuangdun.flutter.plugin.arcface">
+
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.READ_PHONE_STATE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

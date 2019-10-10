@@ -1,11 +1,11 @@
-package com.chuangdun.flutter_arcface_plugin.util;
+package com.chuangdun.flutter.plugin.arcface.util;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.hardware.Camera;
-import com.chuangdun.flutter_arcface_plugin.widget.FaceRectView;
+import com.chuangdun.flutter.plugin.arcface.widget.FaceRectView;
 
 /**
  * 绘制人脸框帮助类，用于在{@link FaceRectView}上绘制矩形

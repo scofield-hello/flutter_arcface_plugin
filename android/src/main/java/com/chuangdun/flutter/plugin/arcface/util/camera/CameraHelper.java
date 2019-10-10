@@ -1,4 +1,4 @@
-package com.chuangdun.flutter_arcface_plugin.util.camera;
+package com.chuangdun.flutter.plugin.arcface.util.camera;
 
 import android.graphics.ImageFormat;
 import android.graphics.Point;

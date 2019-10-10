@@ -1,4 +1,4 @@
-package com.chuangdun.flutter_arcface_plugin;
+package com.chuangdun.flutter.plugin.arcface;
 
 import android.Manifest;
 import android.app.Activity;
