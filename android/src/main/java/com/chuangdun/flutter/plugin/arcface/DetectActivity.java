@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -72,6 +73,7 @@ public class DetectActivity extends AppCompatActivity
   public static final String ACTION_RECOGNIZE_FACE = "recognize";
   public static final String ACTION_EXTRACT_FEATURE = "extract";
   public static final String EXTRA_ACTION = "action";
+  public static final String EXTRA_USE_BACK_CAMERA = "use_back_camera";
   public static final String EXTRA_SRC_FEATURE = "src_feature";
   public static final String EXTRA_SIMILAR_THRESHOLD = "similar_threshold";
   private static final String TAG = "DetectActivity";
@@ -112,7 +114,7 @@ public class DetectActivity extends AppCompatActivity
   private float similarThreshold;
 
   private String srcFeatureData;
-
+  private boolean useBackCamera;
   private ExecutorService threadPool =
       new ThreadPoolExecutor(
           1, 1, 0L, TimeUnit.MILLISECONDS,
@@ -125,9 +127,10 @@ public class DetectActivity extends AppCompatActivity
    */
   private TextView tipView;
 
-  public static Intent extract(Context context) {
+  public static Intent extract(Context context, boolean backCamera) {
     Intent intent = new Intent(context, DetectActivity.class);
     intent.putExtra(EXTRA_ACTION, ACTION_EXTRACT_FEATURE);
+    intent.putExtra(EXTRA_USE_BACK_CAMERA, backCamera);
     return intent;
   }
 
@@ -215,6 +218,7 @@ public class DetectActivity extends AppCompatActivity
   @Override
   protected void onSaveInstanceState(final Bundle outState) {
     outState.putString(EXTRA_ACTION, action);
+    outState.putBoolean(EXTRA_USE_BACK_CAMERA, useBackCamera);
     outState.putString(EXTRA_SRC_FEATURE, srcFeatureData);
     outState.putFloat(EXTRA_SIMILAR_THRESHOLD, similarThreshold);
     super.onSaveInstanceState(outState);
@@ -507,7 +511,8 @@ public class DetectActivity extends AppCompatActivity
                 new Point(previewView.getMeasuredWidth(), previewView.getMeasuredHeight()))
             .previewSize(new Point(DEFAULT_PREVIEW_WIDTH, DEFAULT_PREVIEW_HEIGHT))
             .rotation(getWindowManager().getDefaultDisplay().getRotation())
-            .specificCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT)
+            .specificCameraId(useBackCamera ? CameraInfo.CAMERA_FACING_BACK
+                : Camera.CameraInfo.CAMERA_FACING_FRONT)
             .isMirror(false)
             .previewOn(previewView)
             .cameraListener(cameraListener)
@@ -546,6 +551,7 @@ public class DetectActivity extends AppCompatActivity
     }
     Verify.verifyNotNull(savedInstanceState, "参数传递有误.");
     action = savedInstanceState.getString(EXTRA_ACTION, ACTION_EXTRACT_FEATURE);
+    useBackCamera = savedInstanceState.getBoolean(EXTRA_USE_BACK_CAMERA, false);
     Verify.verify(
         ACTION_EXTRACT_FEATURE.equals(action) || ACTION_RECOGNIZE_FACE.equals(action), "参数传递有误.");
     if (ACTION_RECOGNIZE_FACE.equals(action)) {
