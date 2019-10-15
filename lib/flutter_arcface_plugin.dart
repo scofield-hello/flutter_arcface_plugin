@@ -102,8 +102,8 @@ class FlutterArcfacePlugin {
   }
 
   ///提取人脸特征.
-  static Future<dynamic> extract() async {
-    final dynamic result = await _channel.invokeMethod('extract');
+  static Future<dynamic> extract({bool useBackCamera = false}) async {
+    final dynamic result = await _channel.invokeMethod('extract', {'useBackCamera': useBackCamera});
     return result;
   }
 

@@ -25,9 +25,12 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** @author Nickey */
+/**
+ * @author Nickey
+ */
 public class FlutterArcfacePlugin
     implements MethodCallHandler, PluginRegistry.ActivityResultListener {
+
   private static final String TAG = "FlutterArcfacePlugin";
   private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
   private static final int ACTION_REQUEST_EXTRACT = 0x002;
@@ -37,10 +40,10 @@ public class FlutterArcfacePlugin
   private static final String METHOD_EXTRACT = "extract";
   private static final String METHOD_RECOGNIZE = "recognize";
   private static final String[] NEEDED_PERMISSIONS =
-      new String[] {
-        Manifest.permission.CAMERA,
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
+      new String[]{
+          Manifest.permission.CAMERA,
+          Manifest.permission.READ_PHONE_STATE,
+          Manifest.permission.WRITE_EXTERNAL_STORAGE
       };
   private static ThreadFactory threadFactory =
       new ThreadFactoryBuilder().setNameFormat("arcface_pool_%d").build();
@@ -55,7 +58,9 @@ public class FlutterArcfacePlugin
     this.activity = activity;
   }
 
-  /** Plugin registration. */
+  /**
+   * Plugin registration.
+   */
   public static void registerWith(Registrar registrar) {
     final MethodChannel channel =
         new MethodChannel(registrar.messenger(), "flutter_arcface_plugin");
@@ -86,7 +91,8 @@ public class FlutterArcfacePlugin
         Log.e(TAG, "激活任务执行失败", e);
       }
     } else if (call.method.equals(METHOD_EXTRACT)) {
-      Intent intent = DetectActivity.extract(activity);
+      boolean useBackCamera = call.argument("useBackCamera");
+      Intent intent = DetectActivity.extract(activity, useBackCamera);
       activity.startActivityForResult(intent, ACTION_REQUEST_EXTRACT);
     } else if (call.method.equals(METHOD_RECOGNIZE)) {
       String srcFeatureData = call.argument("src_feature");
