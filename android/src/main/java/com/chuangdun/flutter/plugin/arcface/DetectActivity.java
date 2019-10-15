@@ -339,7 +339,8 @@ public class DetectActivity extends AppCompatActivity
   }
 
   private String saveNv21ToJpeg(byte[] nv21Data, int width, int height) throws Exception {
-    byte[] yuvData = useBackCamera ? nv21Data : nv21Rotate270(nv21Data, width, height);
+    byte[] yuvData = useBackCamera ? nv21Rotate90(nv21Data, width, height)
+        : nv21Rotate270(nv21Data, width, height);
     String filename = Strings.lenientFormat("IMG_face_%s.jpg", System.currentTimeMillis());
     Log.d(TAG, "saveNv21ToJpeg, filename: " + filename);
     File publicDirectory = Environment
@@ -360,6 +361,35 @@ public class DetectActivity extends AppCompatActivity
     fileOutputStream.flush();
     fileOutputStream.close();
     return jpeg.getAbsolutePath();
+  }
+
+  /**
+   * 此处为顺时针旋转旋转90度
+   *
+   * @param data 旋转前的数据
+   * @param imageWidth 旋转前数据的宽
+   * @param imageHeight 旋转前数据的高
+   * @return 旋转后的数据
+   */
+  private byte[] nv21Rotate90(byte[] data, int imageWidth, int imageHeight) {
+    byte[] yuvData = new byte[imageWidth * imageHeight * 3 / 2];
+    int i = 0;
+    for (int x = 0; x < imageWidth; x++) {
+      for (int y = imageHeight - 1; y >= 0; y--) {
+        yuvData[i] = data[y * imageWidth + x];
+        i++;
+      }
+    }
+    i = imageWidth * imageHeight * 3 / 2 - 1;
+    for (int x = imageWidth - 1; x > 0; x = x - 2) {
+      for (int y = 0; y < imageHeight / 2; y++) {
+        yuvData[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + x];
+        i--;
+        yuvData[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + (x - 1)];
+        i--;
+      }
+    }
+    return yuvData;
   }
 
   private byte[] nv21Rotate270(byte[] nv21Data, int imageWidth, int imageHeight) {
