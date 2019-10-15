@@ -339,7 +339,7 @@ public class DetectActivity extends AppCompatActivity
   }
 
   private String saveNv21ToJpeg(byte[] nv21Data, int width, int height) throws Exception {
-    byte[] yuvData = nv21Rotate270(nv21Data, width, height);
+    byte[] yuvData = useBackCamera ? nv21Data : nv21Rotate270(nv21Data, width, height);
     String filename = Strings.lenientFormat("IMG_face_%s.jpg", System.currentTimeMillis());
     Log.d(TAG, "saveNv21ToJpeg, filename: " + filename);
     File publicDirectory = Environment
