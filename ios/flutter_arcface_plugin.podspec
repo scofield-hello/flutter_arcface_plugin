@@ -15,7 +15,9 @@ A new flutter plugin project.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-
+  s.ios.vendored_frameworks = 'Frameworks/ArcSoftFaceEngine.framework'
+  s.vendored_frameworks = 'ArcSoftFaceEngine.framework'
+  s.resources = ['Resource/libstdc++.6.0.9.tbd', 'Resource/ic_action_back_light@3x.png', 'Resource/ic_action_back_light@2x.png', 'Resource/ic_action_back_light.png']
   s.ios.deployment_target = '8.0'
 end
 
