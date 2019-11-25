@@ -475,6 +475,9 @@ public class DetectActivity extends AppCompatActivity
         if (faceInfoList.size() > 1) {
           tipView.setText(R.string.detect_many_face_tips);
         } else {
+          if (faceRectView != null && drawHelper != null) {
+            drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
+          }
           if (!drawHelper.isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
             tipView.setText(R.string.detect_center_tips);
             return;
@@ -487,28 +490,9 @@ public class DetectActivity extends AppCompatActivity
                   FaceEngine.CP_PAF_NV21,
                   faceInfoList,
                   FaceEngine.ASF_LIVENESS);
-          /* | FaceEngine.ASF_FACE3DANGLE*/
           if (code != ErrorInfo.MOK) {
             return;
           }
-              /*List<Face3DAngle> face3DAngleList = new ArrayList<Face3DAngle>();
-              int face3DAngleCode = faceEngine.getFace3DAngle(face3DAngleList);
-              if (face3DAngleCode != ErrorInfo.MOK) {
-                return;
-              }
-              float yaw = face3DAngleList.get(0).getYaw();
-              float roll = face3DAngleList.get(0).getRoll();
-              float pitch = face3DAngleList.get(0).getPitch();
-              boolean isYawAngleOk = yaw >= -10.0f && yaw <= 10.0f;
-              boolean isRollAngleOk = roll >= -100.0f && roll <= -80.0f;
-              boolean isPitchAngleOk = pitch >= -10.0f && pitch <= 10.0f;
-              if (!(isYawAngleOk && isRollAngleOk && isPitchAngleOk)) {
-                Log.w(
-                    TAG,
-                    Strings.lenientFormat("人脸3D角度:yaw: %s ,roll: %s, pitch: %s", yaw, roll, pitch));
-                tipView.setText(R.string.detect_orient_tips);
-                return;
-              }*/
           List<LivenessInfo> livenessInfoList = new ArrayList<LivenessInfo>();
           int livenessCode = faceEngine.getLiveness(livenessInfoList);
           if (livenessCode != ErrorInfo.MOK) {
@@ -519,9 +503,6 @@ public class DetectActivity extends AppCompatActivity
             return;
           } else {
             tipView.setText("");
-          }
-          if (faceRectView != null && drawHelper != null) {
-            drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
           }
           FaceFeatureTask task =
               new FaceFeatureTask(
