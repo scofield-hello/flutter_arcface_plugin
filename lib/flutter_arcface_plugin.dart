@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
 class ArcFaceErrors {
-  static final _errors = <int, String>{
+  static final _androidErrors = <int, String>{
     0: "成功",
     1: "错误原因不明",
     2: "无效的参数",
@@ -71,20 +72,111 @@ class ArcFaceErrors {
     94212: "网络未知错误,请检查网络后重试"
   };
 
+  static final _iOSErrors = <int, String>{
+    200: "成功",
+    1: "错误原因不明",
+    2: "无效的参数",
+    3: "引擎不支持",
+    4: "内存不足",
+    5: "状态错误",
+    6: "用户取消相关操作",
+    7: "操作时间过期",
+    8: "用户暂停操作",
+    9: "缓冲上溢",
+    10: "缓冲下溢",
+    11: "存贮空间不足",
+    12: "组件不存在",
+    13: "全局数据不存在",
+    28672: "FreeSDK通用错误类型",
+    28673: "无效的App Id",
+    28674: "无效的SDK key",
+    28675: "AppId和SDKKey不匹配",
+    28676: "SDKKey 和使用的SDK 不匹配",
+    28677: "系统版本不被当前SDK所支持",
+    28678: "SDK有效期过期",
+    73728: "FaceRecognition错误类型",
+    73729: "无效的输入内存",
+    73730: "无效的输入图像参数",
+    73731: "无效的脸部信息",
+    73732: "当前设备无GPU可用",
+    73733: "待比较的两个人脸特征的版本不一致",
+    81920: "人脸特征检测错误类型",
+    81921: "人脸特征检测错误未知",
+    81922: "人脸特征检测内存错误",
+    81923: "人脸特征检测格式错误",
+    81924: "人脸特征检测参数错误",
+    81925: "人脸特征检测结果置信度低",
+    86016: "ArcFace扩展错误类型",
+    86017: "Engine不支持的检测属性",
+    86018: "需要检测是属性未初始化",
+    86019: "待获取的属性未在process中处理过",
+    86020: "PROCESS不支持的检测属性",
+    86021: "无效的输入图像",
+    86022: "无效的脸部信息",
+    90112: "人脸比对基础错误类型",
+    90113: "人脸比对SDK激活失败",
+    90114: "人脸比对SDK已激活",
+    90115: "人脸比对SDK未激活",
+    90116: "detectFaceScaleVal不支持",
+    90117: "SDK版本不匹配",
+    90118: "设备不匹配",
+    90119: "唯一标识不匹配",
+    90120: "参数为空",
+    90121: "SDK已过期",
+    90122: "版本不支持",
+    90123: "签名错误",
+    90124: "数据库插入错误",
+    90125: "唯一标识符校验失败",
+    90126: "输入的颜色空间不支持",
+    90127: "图片宽高不支持",
+    94208: "网络错误类型,请检查网络后重试",
+    94209: "服务器异常",
+    94210: "网络请求超时,请检查网络后重试",
+    94211: "不支持的URL",
+    94212: "未能找到指定的服务器",
+    94213: "服务器连接失败,请检查网络后重试",
+    94214: "连接丢失,请检查网络后重试",
+    94215: "连接中断,请检查网络后重试",
+    94216: "操作无法完成",
+    94217: "未知错误"
+  };
+
   static String errorMsg(int error) {
-    try {
-      return _errors[error];
-    } catch (e) {
-      return _errors[1];
+    if (Platform.isAndroid) {
+      try {
+        return _androidErrors[error];
+      } catch (e) {
+        return _androidErrors[1];
+      }
+    } else if (Platform.isIOS) {
+      try {
+        return _iOSErrors[error];
+      } catch (e) {
+        return _iOSErrors[1];
+      }
+    } else {
+      throw UnimplementedError("不支持的系统类型.");
     }
   }
 
   static bool isActiveOk(int error) {
-    return error == 0 || error == 90114;
+    if (Platform.isAndroid) {
+      return error == 0 || error == 90114;
+    } else if (Platform.isIOS) {
+      return error == 200 || error == 90114;
+    } else {
+      throw UnimplementedError("不支持的系统类型.");
+    }
   }
 
   static bool isOperationOk(int error) {
-    return error == 0;
+    if (Platform.isAndroid) {
+      return error == 0;
+    } else if (Platform.isIOS) {
+      return error == 200;
+    } else {
+      throw UnimplementedError("不支持的系统类型.");
+    }
   }
 }
 
