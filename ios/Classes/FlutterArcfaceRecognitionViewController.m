@@ -63,7 +63,7 @@
      self.cameraController = [[ASFCameraController alloc]init];
      self.cameraController.delegate = self;
      [self.cameraController setupCaptureSession:videoOrientation isPositionBack:_isPositionBack];
-     
+
      _labelName = [[UILabel alloc] initWithFrame:CGRectMake(20, (self.view.frame.size.height-240)/2-80, self.view.frame.size.width-40, 40)];
      _labelName.textAlignment = NSTextAlignmentCenter;
      _labelName.text = @"拿起手机，请将面部放置中间位置";

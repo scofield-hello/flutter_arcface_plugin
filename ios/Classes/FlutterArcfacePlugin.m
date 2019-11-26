@@ -32,6 +32,7 @@
   } else if ([@"recognize" isEqualToString:call.method]) {
       _result = nil;
       _result = result;
+      _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc] init];
       _arcfacePickerController.modalPresentationStyle = UIModalPresentationFullScreen;
       _arcfacePickerController.type = 1;
       _arcfacePickerController.isPositionBack = NO;
@@ -41,6 +42,7 @@
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(backFaceSuccess:)name:@"backFaceSuccess" object:nil];
   } else if ([@"extract" isEqualToString:call.method]) {
       _result = result;
+      _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc] init];
       _arcfacePickerController.modalPresentationStyle = UIModalPresentationFullScreen;
       _arcfacePickerController.type = 0;
       _arcfacePickerController.isPositionBack = YES;

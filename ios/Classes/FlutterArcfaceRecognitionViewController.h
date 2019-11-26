@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign)NSInteger type;
 @property (nonatomic, strong)NSData *videoData;
 @property (nonatomic, copy)NSString *maxScore;
-@property (nonatomic, assign)BOOL isPositionBack;
+@property (nonatomic)BOOL isPositionBack;
 @end
 
 NS_ASSUME_NONNULL_END

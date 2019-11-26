@@ -36,7 +36,7 @@
     captureSession = [[AVCaptureSession alloc] init];
     
     [captureSession beginConfiguration];
-    
+    NSLog(@"是否使用后置摄像头：%d", isPositionBack);
     AVCaptureDevice *videoDevice = [self videoDeviceWithPosition:isPositionBack?AVCaptureDevicePositionBack:AVCaptureDevicePositionFront];
     
     AVCaptureDeviceInput *videoIn = [[AVCaptureDeviceInput alloc] initWithDevice:videoDevice error:nil];

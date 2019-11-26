@@ -4,6 +4,7 @@
 
 @protocol ASFCameraControllerDelegate <NSObject>
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection;
+
 @end
 
 
