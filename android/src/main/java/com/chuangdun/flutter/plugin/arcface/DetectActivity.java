@@ -537,11 +537,10 @@ public class DetectActivity extends AppCompatActivity
         faceEngine.init(
             this.getApplicationContext(),
             FaceEngine.ASF_DETECT_MODE_VIDEO,
-            FaceEngine.ASF_OP_0_HIGHER_EXT,
+            FaceEngine.ASF_OP_90_ONLY,
             16,
             20,
             FaceEngine.ASF_FACE_DETECT
-                | FaceEngine.ASF_FACE3DANGLE
                 | FaceEngine.ASF_LIVENESS
                 | FaceEngine.ASF_FACE_RECOGNITION);
     VersionInfo versionInfo = new VersionInfo();
