@@ -533,11 +533,12 @@ public class DetectActivity extends AppCompatActivity
 
   private void initEngine() {
     faceEngine = new FaceEngine();
+    int orientPriority = useBackCamera ? FaceEngine.ASF_OP_90_ONLY : FaceEngine.ASF_OP_270_ONLY;
     afCode =
         faceEngine.init(
             this.getApplicationContext(),
             FaceEngine.ASF_DETECT_MODE_VIDEO,
-            FaceEngine.ASF_OP_90_ONLY,
+            orientPriority,
             16,
             20,
             FaceEngine.ASF_FACE_DETECT
