@@ -478,7 +478,8 @@ public class DetectActivity extends AppCompatActivity
           if (faceRectView != null && drawHelper != null) {
             drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
           }
-          if (!drawHelper.isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
+          if (ACTION_EXTRACT_FEATURE.equals(action) && !drawHelper
+              .isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
             tipView.setText(R.string.detect_center_tips);
             return;
           }
