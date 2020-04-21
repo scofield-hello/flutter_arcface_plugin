@@ -1,5 +1,9 @@
 # flutter_arcface_plugin
 
+将android 版本 sdk升级至v3
+TODO:
+1. 升级iOS 版本 sdk至v3
+
 A new flutter plugin project.
 
 ## Getting Started
