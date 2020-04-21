@@ -1,5 +1,6 @@
 package com.chuangdun.flutter.plugin.arcface.util;
 
+
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -8,25 +9,41 @@ import android.hardware.Camera;
 import com.chuangdun.flutter.plugin.arcface.widget.FaceRectView;
 
 /**
- * 绘制人脸框帮助类，用于在{@link FaceRectView}上绘制矩形
- *
- * @author Nick
+ * 绘制人脸框帮助类，用于在{@link com.chuangdun.flutter.plugin.arcface.widget.FaceRectView}上绘制矩形
  */
 public class DrawHelper {
 
-  private boolean isMirror;
-
   private int previewWidth, previewHeight, canvasWidth, canvasHeight, cameraDisplayOrientation, cameraId;
-
+  private boolean isMirror;
+  private boolean mirrorHorizontal = false, mirrorVertical = false;
 
   /**
-   * 绘制数据信息到view
+   * 创建一个绘制辅助类对象，并且设置绘制相关的参数
    *
-   * @param canvas            需要被绘制的view的canvas
-   * @param rect              绘制区域
-   * @param color             绘制的颜色
-   * @param faceRectThickness 人脸框厚度
+   * @param previewWidth 预览宽度
+   * @param previewHeight 预览高度
+   * @param canvasWidth 绘制控件的宽度
+   * @param canvasHeight 绘制控件的高度
+   * @param cameraDisplayOrientation 旋转角度
+   * @param cameraId 相机ID
+   * @param isMirror 是否水平镜像显示（若相机是镜像显示的，设为true，用于纠正）
+   * @param mirrorHorizontal 为兼容部分设备使用，水平再次镜像
+   * @param mirrorVertical 为兼容部分设备使用，垂直再次镜像
    */
+  public DrawHelper(int previewWidth, int previewHeight, int canvasWidth,
+      int canvasHeight, int cameraDisplayOrientation, int cameraId,
+      boolean isMirror, boolean mirrorHorizontal, boolean mirrorVertical) {
+    this.previewWidth = previewWidth;
+    this.previewHeight = previewHeight;
+    this.canvasWidth = canvasWidth;
+    this.canvasHeight = canvasHeight;
+    this.cameraDisplayOrientation = cameraDisplayOrientation;
+    this.cameraId = cameraId;
+    this.isMirror = isMirror;
+    this.mirrorHorizontal = mirrorHorizontal;
+    this.mirrorVertical = mirrorVertical;
+  }
+
   public static void drawFaceRect(Canvas canvas, Rect rect, int color, int faceRectThickness) {
     if (canvas == null || rect == null) {
       return;
@@ -55,26 +72,12 @@ public class DrawHelper {
     canvas.drawPath(mPath, paint);
   }
 
-  public DrawHelper(int previewWidth, int previewHeight, int canvasWidth,
-    int canvasHeight, int cameraDisplayOrientation, int cameraId,
-    boolean isMirror) {
-    this.previewWidth = previewWidth;
-    this.previewHeight = previewHeight;
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
-    this.cameraDisplayOrientation = cameraDisplayOrientation;
-    this.cameraId = cameraId;
-    this.isMirror = isMirror;
-  }
-
   public void draw(FaceRectView faceRectView, Rect drawInfo) {
     if (faceRectView == null || drawInfo == null) {
       return;
     }
     faceRectView.clearFaceInfo();
-    Rect adjustRect = adjustRect(drawInfo, previewWidth, previewHeight, canvasWidth, canvasHeight,
-      cameraDisplayOrientation, cameraId,
-      isMirror, false, false);
+    Rect adjustRect = adjustRect(drawInfo);
     faceRectView.addFaceInfo(adjustRect);
   }
 
@@ -82,71 +85,40 @@ public class DrawHelper {
     if (faceRectView == null || faceRect == null) {
       return false;
     }
-    Rect rect = adjustRect(faceRect, previewWidth, previewHeight, canvasWidth, canvasHeight,
-      cameraDisplayOrientation, cameraId,
-      isMirror, false, false);
+    Rect rect = adjustRect(faceRect);
     int xOffset = (rect.width()) / 2;
     int yOffset = (rect.height()) / 2;
     int minLeft = canvasWidth / 2 - xOffset - 20;
     int minTop = canvasHeight / 2 - yOffset - 20;
     int maxRight = canvasWidth / 2 + xOffset + 20;
-    int maxBottom = canvasHeight /2 + yOffset + 20;
-    boolean inCenter = rect.left >= minLeft && rect.top >= minTop && rect.right <= maxRight
-      && rect.bottom <= maxBottom;
-    return inCenter;
+    int maxBottom = canvasHeight / 2 + yOffset + 20;
+    return rect.left >= minLeft && rect.top >= minTop && rect.right <= maxRight
+        && rect.bottom <= maxBottom;
 
-  }
-
-  public void setCameraDisplayOrientation(int cameraDisplayOrientation) {
-    this.cameraDisplayOrientation = cameraDisplayOrientation;
-  }
-
-  public void setCameraId(int cameraId) {
-    this.cameraId = cameraId;
-  }
-
-  public void setCanvasHeight(int canvasHeight) {
-    this.canvasHeight = canvasHeight;
-  }
-
-  public void setCanvasWidth(int canvasWidth) {
-    this.canvasWidth = canvasWidth;
-  }
-
-  public void setMirror(boolean mirror) {
-    isMirror = mirror;
-  }
-
-  public void setPreviewHeight(int previewHeight) {
-    this.previewHeight = previewHeight;
-  }
-
-  public void setPreviewWidth(int previewWidth) {
-    this.previewWidth = previewWidth;
   }
 
   /**
-   * @param ftRect                   FT人脸框
-   * @param previewWidth             相机预览的宽度
-   * @param previewHeight            相机预览高度
-   * @param canvasWidth              画布的宽度
-   * @param canvasHeight             画布的高度
-   * @param cameraDisplayOrientation 相机预览方向
-   * @param cameraId                 相机ID
-   * @param isMirror                 是否水平镜像显示（若相机是镜像显示的，设为true，用于纠正）
-   * @param mirrorHorizontal         为兼容部分设备使用，水平再次镜像
-   * @param mirrorVertical           为兼容部分设备使用，垂直再次镜像
+   * 调整人脸框用来绘制
+   *
+   * @param ftRect FT人脸框
    * @return 调整后的需要被绘制到View上的rect
    */
-  private Rect adjustRect(Rect ftRect, int previewWidth, int previewHeight, int canvasWidth, int canvasHeight,
-    int cameraDisplayOrientation, int cameraId,
-    boolean isMirror, boolean mirrorHorizontal, boolean mirrorVertical) {
+  public Rect adjustRect(Rect ftRect) {
+    int previewWidth = this.previewWidth;
+    int previewHeight = this.previewHeight;
+    int canvasWidth = this.canvasWidth;
+    int canvasHeight = this.canvasHeight;
+    int cameraDisplayOrientation = this.cameraDisplayOrientation;
+    int cameraId = this.cameraId;
+    boolean isMirror = this.isMirror;
+    boolean mirrorHorizontal = this.mirrorHorizontal;
+    boolean mirrorVertical = this.mirrorVertical;
 
     if (ftRect == null) {
       return null;
     }
-    Rect rect = new Rect(ftRect);
 
+    Rect rect = new Rect(ftRect);
     float horizontalRatio;
     float verticalRatio;
     if (cameraDisplayOrientation % 180 == 0) {
@@ -160,6 +132,7 @@ public class DrawHelper {
     rect.right *= horizontalRatio;
     rect.top *= verticalRatio;
     rect.bottom *= verticalRatio;
+
     Rect newRect = new Rect();
     switch (cameraDisplayOrientation) {
       case 0:
@@ -232,5 +205,77 @@ public class DrawHelper {
       newRect.bottom = canvasHeight - top;
     }
     return newRect;
+  }
+
+  public int getPreviewWidth() {
+    return previewWidth;
+  }
+
+  public void setPreviewWidth(int previewWidth) {
+    this.previewWidth = previewWidth;
+  }
+
+  public int getPreviewHeight() {
+    return previewHeight;
+  }
+
+  public void setPreviewHeight(int previewHeight) {
+    this.previewHeight = previewHeight;
+  }
+
+  public int getCanvasWidth() {
+    return canvasWidth;
+  }
+
+  public void setCanvasWidth(int canvasWidth) {
+    this.canvasWidth = canvasWidth;
+  }
+
+  public int getCanvasHeight() {
+    return canvasHeight;
+  }
+
+  public void setCanvasHeight(int canvasHeight) {
+    this.canvasHeight = canvasHeight;
+  }
+
+  public int getCameraDisplayOrientation() {
+    return cameraDisplayOrientation;
+  }
+
+  public void setCameraDisplayOrientation(int cameraDisplayOrientation) {
+    this.cameraDisplayOrientation = cameraDisplayOrientation;
+  }
+
+  public int getCameraId() {
+    return cameraId;
+  }
+
+  public void setCameraId(int cameraId) {
+    this.cameraId = cameraId;
+  }
+
+  public boolean isMirror() {
+    return isMirror;
+  }
+
+  public void setMirror(boolean mirror) {
+    isMirror = mirror;
+  }
+
+  public boolean isMirrorHorizontal() {
+    return mirrorHorizontal;
+  }
+
+  public void setMirrorHorizontal(boolean mirrorHorizontal) {
+    this.mirrorHorizontal = mirrorHorizontal;
+  }
+
+  public boolean isMirrorVertical() {
+    return mirrorVertical;
+  }
+
+  public void setMirrorVertical(boolean mirrorVertical) {
+    this.mirrorVertical = mirrorVertical;
   }
 }

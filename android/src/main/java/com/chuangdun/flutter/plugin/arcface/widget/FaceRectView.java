@@ -23,7 +23,6 @@ public class FaceRectView extends View {
 
   private Bitmap bitmap;
   private Paint mPreviewPaint;
-  private int borderWidth = 20;
   private CopyOnWriteArrayList<Rect> faceRectList = new CopyOnWriteArrayList<Rect>();
 
   public FaceRectView(Context context) {
@@ -61,6 +60,7 @@ public class FaceRectView extends View {
     super.onDraw(canvas);
     int width = getWidth();
     int height = getHeight();
+    int borderWidth = 20;
     int radius = (Math.min(width, height) - borderWidth) / 2;
     int centerX = width / 2;
     int centerY = height / 2;

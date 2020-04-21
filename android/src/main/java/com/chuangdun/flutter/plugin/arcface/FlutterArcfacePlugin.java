@@ -113,8 +113,7 @@ public class FlutterArcfacePlugin
         new Callable<Integer>() {
           @Override
           public Integer call() throws Exception {
-            FaceEngine faceEngine = new FaceEngine();
-            return faceEngine.activeOnline(activity, ak, sk);
+            return FaceEngine.activeOnline(activity, ak, sk);
           }
         });
   }

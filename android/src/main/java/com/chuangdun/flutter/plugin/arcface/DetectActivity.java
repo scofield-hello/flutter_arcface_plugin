@@ -3,7 +3,6 @@ package com.chuangdun.flutter.plugin.arcface;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -37,6 +36,8 @@ import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+import com.arcsoft.face.enums.DetectFaceOrientPriority;
+import com.arcsoft.face.enums.DetectMode;
 import com.chuangdun.flutter.plugin.arcface.model.FaceFeatureTask;
 import com.chuangdun.flutter.plugin.arcface.model.FaceFeatureTask.FaceFeatureTaskResult;
 import com.chuangdun.flutter.plugin.arcface.util.DrawHelper;
@@ -163,17 +164,7 @@ public class DetectActivity extends AppCompatActivity
           View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
       getWindow().setAttributes(attributes);
     }
-    // Activity启动后就锁定为启动时的方向
-    switch (getResources().getConfiguration().orientation) {
-      case Configuration.ORIENTATION_PORTRAIT:
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        break;
-      case Configuration.ORIENTATION_LANDSCAPE:
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        break;
-      default:
-        break;
-    }
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
     handlerThread = new HandlerThread("handler-thread");
     handlerThread.start();
     handler =
@@ -423,11 +414,11 @@ public class DetectActivity extends AppCompatActivity
       }
 
       @Override
-      public void onCameraConfigurationChanged(int cameraID, int displayOrientation) {
+      public void onCameraConfigurationChanged(int cameraId, int displayOrientation) {
         if (drawHelper != null) {
           drawHelper.setCameraDisplayOrientation(displayOrientation);
         }
-        Log.i(TAG, "onCameraConfigurationChanged: " + cameraID + "  " + displayOrientation);
+        Log.i(TAG, "onCameraConfigurationChanged: " + cameraId + "  " + displayOrientation);
       }
 
       @Override
@@ -438,17 +429,11 @@ public class DetectActivity extends AppCompatActivity
       @Override
       public void onCameraOpened(
           Camera camera, int cameraId, int displayOrientation, boolean isMirror) {
-        Log.i(TAG, "onCameraOpened: " + cameraId + "  " + displayOrientation + " " + isMirror);
         previewSize = camera.getParameters().getPreviewSize();
-        drawHelper =
-            new DrawHelper(
-                previewSize.width,
-                previewSize.height,
-                previewView.getWidth(),
-                previewView.getHeight(),
-                displayOrientation,
-                cameraId,
-                isMirror);
+        drawHelper = new DrawHelper(previewSize.width, previewSize.height, previewView.getWidth(),
+            previewView.getHeight(), displayOrientation
+            , cameraId, isMirror, false, false);
+        Log.i(TAG, "onCameraOpened: " + drawHelper.toString());
         handler.sendEmptyMessage(0);
       }
 
@@ -530,10 +515,11 @@ public class DetectActivity extends AppCompatActivity
             .cameraListener(cameraListener)
             .build();
     cameraHelper.init();
+    cameraHelper.start();
   }
 
   private void initEngine() {
-    faceEngine = new FaceEngine();
+    /*faceEngine = new FaceEngine();
     int orientPriority = useBackCamera ? FaceEngine.ASF_OP_90_ONLY : FaceEngine.ASF_OP_270_ONLY;
     afCode =
         faceEngine.init(
@@ -547,6 +533,26 @@ public class DetectActivity extends AppCompatActivity
                 | FaceEngine.ASF_FACE_RECOGNITION);
     VersionInfo versionInfo = new VersionInfo();
     faceEngine.getVersion(versionInfo);
+    Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
+    if (afCode != ErrorInfo.MOK) {
+      showMessage(getString(R.string.init_failed, afCode));
+      Intent errorResult = new Intent();
+      errorResult.putExtra("error", "人脸识别引擎初始化失败:" + afCode);
+      setResult(RESULT_FIRST_USER, errorResult);
+      finish();
+    }*/
+
+    DetectFaceOrientPriority orientPriority =
+        useBackCamera ? DetectFaceOrientPriority.ASF_OP_90_ONLY
+            : DetectFaceOrientPriority.ASF_OP_270_ONLY;
+    int combinedMask =
+        FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS | FaceEngine.ASF_FACE_RECOGNITION;
+    faceEngine = new FaceEngine();
+    afCode = faceEngine
+        .init(this, DetectMode.ASF_DETECT_MODE_VIDEO, orientPriority,
+            16, 20, combinedMask);
+    VersionInfo versionInfo = new VersionInfo();
+    FaceEngine.getVersion(versionInfo);
     Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
     if (afCode != ErrorInfo.MOK) {
       showMessage(getString(R.string.init_failed, afCode));
