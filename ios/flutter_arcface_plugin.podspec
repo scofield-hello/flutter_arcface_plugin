@@ -15,9 +15,12 @@ A new flutter plugin project.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
+  # 表示libstdc++.6.0.9.tdb,省略lib前缀，省略.tbd后缀
+  s.libraries = 'stdc++.6.0.9'
   s.ios.vendored_frameworks = 'Frameworks/ArcSoftFaceEngine.framework'
-  s.vendored_frameworks = 'ArcSoftFaceEngine.framework'
-  s.resources = ['Resource/libstdc++.6.0.9.tbd', 'Resource/ic_action_back_light@3x.png', 'Resource/ic_action_back_light@2x.png', 'Resource/ic_action_back_light.png']
+  # s.vendored_frameworks = 'ArcSoftFaceEngine.framework'
+  #s.resources = ['Resource/libstdc++.6.0.9.tbd', 'Resource/ic_action_back_light@3x.png', 'Resource/ic_action_back_light@2x.png', 'Resource/ic_action_back_light.png']
+  s.resources = 'Resource/*'
   s.ios.deployment_target = '8.0'
 end
 

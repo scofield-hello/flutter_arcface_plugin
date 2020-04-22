@@ -98,6 +98,34 @@ typedef struct __tag_point
 	MInt32 y; 
 } MPOINT, *PMPOINT;
 
+typedef struct __tag_point3
+{ 
+	MInt32 x; 
+	MInt32 y; 
+	MInt32 z; 
+} MPOINT3, *PMPOINT3;
+
+typedef struct __tag_rectf
+{
+	MFloat left;
+	MFloat top;
+	MFloat right;
+	MFloat bottom;
+} MRECTF, *PMRECTF;
+
+typedef struct __tag_pointf
+{ 
+	MFloat x; 
+	MFloat y; 
+} MPOINTF, *PMPOINTF;
+
+typedef struct __tag_point3f
+{ 
+	MFloat x; 
+	MFloat y; 
+	MFloat z; 
+} MPOINT3F, *PMPOINT3F;
+
 
 #define MNull		0
 #define MFalse		0

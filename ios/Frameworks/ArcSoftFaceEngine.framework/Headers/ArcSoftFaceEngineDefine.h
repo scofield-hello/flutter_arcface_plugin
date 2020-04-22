@@ -33,6 +33,7 @@
 #define ASF_AGE                     0x00000008
 #define ASF_GENDER                  0x00000010
 #define ASF_FACE3DANGLE             0x00000020
+#define ASF_LIVENESS                0x00000080
 
 #define ASF_DETECT_MODE_VIDEO    0x00000000
 #define ASF_DETECT_MODE_IMAGE    0xFFFFFFFF
@@ -50,7 +51,7 @@ enum ArcSoftFace_OrientPriority {
     ASF_OP_90_ONLY           = 0x2,     // 仅检测90度
     ASF_OP_270_ONLY          = 0x3,     // 仅检测270度
     ASF_OP_180_ONLY          = 0x4,     // 仅检测180度
-    ASF_OP_0_HIGHER_EXT      = 0x5,     // 检测0、90、270、180全角度
+    ASF_OP_ALL_OUT           = 0x5,     // 检测0、90、270、180全角度
 };
 
 typedef MInt32 ASF_OrientCode;
@@ -134,4 +135,13 @@ typedef struct
     MInt32 num;           //检测的人脸个数
 }ASF_Face3DAngle, *LPASF_Face3DAngle;
 
+/*!
+ @typedef ASF_FaceLivenessScore
+ @brief 活体检测结果
+ */
+typedef struct
+{
+    MInt32*  scoreArray;    //1: 真人，0: 非真人，-1: 初始状态值，-3: 人脸太小，-4: 人脸角度太大，其他值：错误
+    MInt32  num;            //检测的人脸个数
+}ASF_FaceLivenessScore, *LPASF_FaceLivenessScore;
 #endif 

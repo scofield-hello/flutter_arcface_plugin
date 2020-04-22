@@ -6,11 +6,11 @@
 	<dict>
 		<key>Headers/ArcSoftFaceEngine.h</key>
 		<data>
-		1y6pFBP9+jyYs1ezo0UAD3UwyC4=
+		B33JTnfQ0qLIizZqPaHETRhDUMY=
 		</data>
 		<key>Headers/ArcSoftFaceEngineDefine.h</key>
 		<data>
-		omI1u8cgYIGNmSTHvuF33FjSsO0=
+		ITbTCed45UA4m+NmiKhvbJvqWUc=
 		</data>
 		<key>Headers/ArcSoftFaceEngineLib.h</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>Headers/amcomdef.h</key>
 		<data>
-		q3t8oU1orqh2TT5VkELLwe0Fnq4=
+		7n3zdk8Xn3KaANU5DyyBT6d1c0s=
 		</data>
 		<key>Headers/merror.h</key>
 		<data>
@@ -26,7 +26,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		nMcBluLM5saKViHLWf28os1+BkI=
+		6UY+EI0XrQmO4tB2HvbTFNpeNwM=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -39,22 +39,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			1y6pFBP9+jyYs1ezo0UAD3UwyC4=
+			B33JTnfQ0qLIizZqPaHETRhDUMY=
 			</data>
 			<key>hash2</key>
 			<data>
-			s9ADHjez30XUGrpYMsyWxycB45iPEKZQ0Hvr/9wgpPY=
+			rkqc/0Btz6piqrXYWX9h1O6Z994ebfKqM+eer80OnBo=
 			</data>
 		</dict>
 		<key>Headers/ArcSoftFaceEngineDefine.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			omI1u8cgYIGNmSTHvuF33FjSsO0=
+			ITbTCed45UA4m+NmiKhvbJvqWUc=
 			</data>
 			<key>hash2</key>
 			<data>
-			1Nz6/xu7a1gC+wVvyNG42GGWuPrVFuYh3USmii22tjM=
+			589D6smIeuJQ0lp6m2dINxLAmm1e3UothoHJsCx5Tqg=
 			</data>
 		</dict>
 		<key>Headers/ArcSoftFaceEngineLib.h</key>
@@ -72,11 +72,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			q3t8oU1orqh2TT5VkELLwe0Fnq4=
+			7n3zdk8Xn3KaANU5DyyBT6d1c0s=
 			</data>
 			<key>hash2</key>
 			<data>
-			S6Ye8bLSdT/U2u0p9FLKQN5fbjva4Km1Yag97g2imvE=
+			8GHy65uXikLpHOKdVUaXOJPB9wPaLsJYQs8nHBHcncA=
 			</data>
 		</dict>
 		<key>Headers/merror.h</key>
@@ -104,7 +104,7 @@
 	</dict>
 	<key>rules</key>
 	<dict>
-		<key>^</key>
+		<key>^.*</key>
 		<true/>
 		<key>^.*\.lproj/</key>
 		<dict>
@@ -135,24 +135,12 @@
 			<key>weight</key>
 			<real>11</real>
 		</dict>
-		<key>^</key>
-		<dict>
-			<key>weight</key>
-			<real>20</real>
-		</dict>
 		<key>^(.*/)?\.DS_Store$</key>
 		<dict>
 			<key>omit</key>
 			<true/>
 			<key>weight</key>
 			<real>2000</real>
-		</dict>
-		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^.*</key>
 		<true/>
@@ -188,13 +176,6 @@
 			<true/>
 			<key>weight</key>
 			<real>20</real>
-		</dict>
-		<key>^[^/]+$</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^embedded\.provisionprofile$</key>
 		<dict>

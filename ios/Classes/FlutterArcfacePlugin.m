@@ -58,6 +58,7 @@
 {
     ArcSoftFaceEngine *engine = [[ArcSoftFaceEngine alloc] init];
     MRESULT mr = [engine activeWithAppId:ak SDKKey:sk];
+    NSLog(@"ArcSoftFaceEngine version: %@", [engine getVersion]);
     return [[NSString stringWithFormat:@"%ld", mr] intValue];
 }
 

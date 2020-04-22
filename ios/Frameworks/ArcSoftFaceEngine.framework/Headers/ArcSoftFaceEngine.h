@@ -159,3 +159,19 @@
      */
     - (MRESULT)getGender:(LPASF_GenderInfo)genderInfo;
 @end
+
+@interface ArcSoftFaceEngine(FaceLiveness)
+    /*!
+     * @brief               设置活体阈值
+     * @param threshold     活体阈值[0,1]
+     * @return              成功返回ASF_MOK，否则返回失败code
+     */
+    - (MRESULT)setLivenessThreshold:(MFloat)threshold;
+    /*!
+     * @brief                   获取活体结果
+     * @param livenessScore     检测到的活体结果
+     * @return                  成功返回ASF_MOK，否则返回失败code
+     */
+    - (MRESULT)getLiveness:(LPASF_FaceLivenessScore)livenessScore;
+
+@end

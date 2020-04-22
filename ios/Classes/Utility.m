@@ -162,32 +162,32 @@
 //照片获取本地路径转换
 + (NSString *)getImagePath:(UIImage *)Image
 {
-    
-    NSString * filePath = nil;
-    NSData * data = UIImageJPEGRepresentation(Image, 0.8);
-    
-    //图片保存的路径
-    //这里将图片放在沙盒的documents文件夹中
-    NSString * DocumentsPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
-    
-    //文件管理器
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    //把刚刚图片转换的data对象拷贝至沙盒中
-    [fileManager createDirectoryAtPath:DocumentsPath withIntermediateDirectories:YES attributes:nil error:nil];
-    //获取当前时间日期
-    int i = 1;
-    NSString * ImagePath = [[NSString alloc]initWithFormat:@"%@%03d.jpg", CDV_PHOTO_PREFIX, i++];
-    [fileManager createFileAtPath:[DocumentsPath stringByAppendingString:ImagePath] contents:data attributes:nil];
-    
-    //得到选择后沙盒中图片的完整路径
-    filePath = [[NSString alloc]initWithFormat:@"%@/%@",DocumentsPath,ImagePath];//file://
-    BOOL success = [data writeToFile:filePath atomically:YES];
-    if (success) {
-        NSLog(@"写入成功");
-    }
-    
-    return filePath;
+    NSString *imageFilePath = nil;
+        NSData * data = UIImageJPEGRepresentation(Image, 0.8);
+        NSString *tmpPath = NSTemporaryDirectory();
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        BOOL dirExist = [fileManager fileExistsAtPath:tmpPath];
+        if (dirExist) {
+            NSError *error;
+            if (![fileManager createDirectoryAtPath:tmpPath withIntermediateDirectories:YES attributes:nil error:&error]) {
+                NSLog(@"临时图片文件夹创建失败. %@", [error localizedDescription]);
+                return nil;
+            }
+        }
+        NSString *filename = [[NSString alloc]initWithFormat:@"%@%d.jpg", CDV_PHOTO_PREFIX, arc4random_uniform(1000)];
+        NSString *filePath = [tmpPath stringByAppendingPathComponent:filename];
+        NSLog(@"写入人脸照片: %@", filePath);
+        BOOL success = [fileManager createFileAtPath:filePath
+                                            contents:data
+                                          attributes:nil];
+        if (!success) {
+            NSLog(@"人脸照片文件写入失败");
+            return nil;
+        } else {
+            NSLog(@"人脸照片文件写入成功");
+        }
+        imageFilePath = [[NSString alloc]initWithFormat:@"file://%@%@",tmpPath,filename];
+        return imageFilePath;
 }
 
 @end
