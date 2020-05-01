@@ -91,16 +91,21 @@ public class FlutterArcfacePlugin
         Log.e(TAG, "激活任务执行失败", e);
       }
     } else if (call.method.equals(METHOD_EXTRACT)) {
-      boolean useBackCamera = call.argument("useBackCamera");
-      Intent intent = DetectActivity.extract(activity, useBackCamera);
+      boolean useBackCamera = call.hasArgument("useBackCamera") ?
+          call.<Boolean>argument("useBackCamera") : false;
+      boolean genImageFile = call.hasArgument("genImageFile") ?
+          call.<Boolean>argument("genImageFile") : false;
+      boolean requireFaceCenter = call.hasArgument("requireFaceCenter") ?
+          call.<Boolean>argument("requireFaceCenter") : false;
+      Intent intent = DetectActivity.extract(activity, useBackCamera, genImageFile, requireFaceCenter);
       activity.startActivityForResult(intent, ACTION_REQUEST_EXTRACT);
     } else if (call.method.equals(METHOD_RECOGNIZE)) {
-      String srcFeatureData = call.argument("src_feature");
-      double similarThreshold = call.argument("similar_threshold");
+      String srcFeatureData = call.argument("srcFeature");
+      double similarThreshold = call.<Double>argument("similarThreshold");
       float floatSimilarThreshold = Float.parseFloat(Double.toString(similarThreshold));
-      Log.d(TAG, "onMethodCall: src_feature: " + srcFeatureData);
-      Log.d(TAG, "onMethodCall: similar_threshold: " + similarThreshold);
-      Intent intent = DetectActivity.recognize(activity, floatSimilarThreshold, srcFeatureData);
+      boolean requireFaceCenter = call.hasArgument("requireFaceCenter") ?
+          call.<Boolean>argument("requireFaceCenter") : false;
+      Intent intent = DetectActivity.recognize(activity, floatSimilarThreshold, srcFeatureData, requireFaceCenter);
       activity.startActivityForResult(intent, ACTION_REQUEST_RECOGNIZE);
     } else {
       result.notImplemented();

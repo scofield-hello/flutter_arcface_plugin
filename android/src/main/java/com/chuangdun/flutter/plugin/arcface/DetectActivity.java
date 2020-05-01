@@ -73,6 +73,8 @@ public class DetectActivity extends AppCompatActivity
 
   public static final String ACTION_RECOGNIZE_FACE = "recognize";
   public static final String ACTION_EXTRACT_FEATURE = "extract";
+  public static final String EXTRA_GEN_IMAGE_FILE = "gen_image_file";
+  public static final String EXTRA_REQUIRE_FACE_CENTER = "require_face_center";
   public static final String EXTRA_ACTION = "action";
   public static final String EXTRA_USE_BACK_CAMERA = "use_back_camera";
   public static final String EXTRA_SRC_FEATURE = "src_feature";
@@ -116,6 +118,9 @@ public class DetectActivity extends AppCompatActivity
 
   private String srcFeatureData;
   private boolean useBackCamera;
+  private boolean genImageFile = true;
+  private boolean requireFaceCenter = true;
+
   private ExecutorService threadPool =
       new ThreadPoolExecutor(
           1, 1, 0L, TimeUnit.MILLISECONDS,
@@ -128,18 +133,21 @@ public class DetectActivity extends AppCompatActivity
    */
   private TextView tipView;
 
-  public static Intent extract(Context context, boolean backCamera) {
+  public static Intent extract(Context context, boolean useBackCamera, boolean genImageFile, boolean requireFaceCenter) {
     Intent intent = new Intent(context, DetectActivity.class);
     intent.putExtra(EXTRA_ACTION, ACTION_EXTRACT_FEATURE);
-    intent.putExtra(EXTRA_USE_BACK_CAMERA, backCamera);
+    intent.putExtra(EXTRA_USE_BACK_CAMERA, useBackCamera);
+    intent.putExtra(EXTRA_GEN_IMAGE_FILE, genImageFile);
+    intent.putExtra(EXTRA_REQUIRE_FACE_CENTER, requireFaceCenter);
     return intent;
   }
 
-  public static Intent recognize(Context context, float similarThreshold, String srcFeatureData) {
+  public static Intent recognize(Context context, float similarThreshold, String srcFeatureData, boolean requireFaceCenter) {
     Intent intent = new Intent(context, DetectActivity.class);
     intent.putExtra(EXTRA_ACTION, ACTION_RECOGNIZE_FACE);
     intent.putExtra(EXTRA_SIMILAR_THRESHOLD, similarThreshold);
     intent.putExtra(EXTRA_SRC_FEATURE, srcFeatureData);
+    intent.putExtra(EXTRA_REQUIRE_FACE_CENTER, requireFaceCenter);
     return intent;
   }
 
@@ -212,6 +220,8 @@ public class DetectActivity extends AppCompatActivity
     outState.putBoolean(EXTRA_USE_BACK_CAMERA, useBackCamera);
     outState.putString(EXTRA_SRC_FEATURE, srcFeatureData);
     outState.putFloat(EXTRA_SIMILAR_THRESHOLD, similarThreshold);
+    outState.putBoolean(EXTRA_GEN_IMAGE_FILE, genImageFile);
+    outState.putBoolean(EXTRA_REQUIRE_FACE_CENTER, requireFaceCenter);
     super.onSaveInstanceState(outState);
   }
 
@@ -300,11 +310,14 @@ public class DetectActivity extends AppCompatActivity
               Log.d(TAG, String.format("人脸特征提取成功: %s", featureData));
               if (srcFeatureData == null) {
                 try {
-                  String newJpeg =
-                      saveNv21ToJpeg(
-                          taskResult.getNv21Data(), previewSize.width, previewSize.height);
-                  File file = new File(newJpeg);
-                  String jpegUri = file.toURI().toString();
+                  String jpegUri = null;
+                  if (genImageFile){
+                    String newJpeg =
+                        saveNv21ToJpeg(
+                            taskResult.getNv21Data(), previewSize.width, previewSize.height);
+                    File file = new File(newJpeg);
+                    jpegUri = file.toURI().toString();
+                  }
                   Intent data = new Intent();
                   data.putExtra("feature", featureData);
                   data.putExtra("image", jpegUri);
@@ -463,10 +476,12 @@ public class DetectActivity extends AppCompatActivity
           if (faceRectView != null && drawHelper != null) {
             drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
           }
-          if (ACTION_EXTRACT_FEATURE.equals(action) && !drawHelper
-              .isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
-            tipView.setText(R.string.detect_center_tips);
-            return;
+          if (requireFaceCenter){
+            if (ACTION_EXTRACT_FEATURE.equals(action) && !drawHelper
+                .isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
+              tipView.setText(R.string.detect_center_tips);
+              return;
+            }
           }
           code =
               faceEngine.process(
@@ -519,29 +534,6 @@ public class DetectActivity extends AppCompatActivity
   }
 
   private void initEngine() {
-    /*faceEngine = new FaceEngine();
-    int orientPriority = useBackCamera ? FaceEngine.ASF_OP_90_ONLY : FaceEngine.ASF_OP_270_ONLY;
-    afCode =
-        faceEngine.init(
-            this.getApplicationContext(),
-            FaceEngine.ASF_DETECT_MODE_VIDEO,
-            orientPriority,
-            16,
-            20,
-            FaceEngine.ASF_FACE_DETECT
-                | FaceEngine.ASF_LIVENESS
-                | FaceEngine.ASF_FACE_RECOGNITION);
-    VersionInfo versionInfo = new VersionInfo();
-    faceEngine.getVersion(versionInfo);
-    Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
-    if (afCode != ErrorInfo.MOK) {
-      showMessage(getString(R.string.init_failed, afCode));
-      Intent errorResult = new Intent();
-      errorResult.putExtra("error", "人脸识别引擎初始化失败:" + afCode);
-      setResult(RESULT_FIRST_USER, errorResult);
-      finish();
-    }*/
-
     DetectFaceOrientPriority orientPriority =
         useBackCamera ? DetectFaceOrientPriority.ASF_OP_90_ONLY
             : DetectFaceOrientPriority.ASF_OP_270_ONLY;
@@ -570,6 +562,8 @@ public class DetectActivity extends AppCompatActivity
     Verify.verifyNotNull(savedInstanceState, "参数传递有误.");
     action = savedInstanceState.getString(EXTRA_ACTION, ACTION_EXTRACT_FEATURE);
     useBackCamera = savedInstanceState.getBoolean(EXTRA_USE_BACK_CAMERA, false);
+    genImageFile = savedInstanceState.getBoolean(EXTRA_GEN_IMAGE_FILE, false);
+    requireFaceCenter = savedInstanceState.getBoolean(EXTRA_REQUIRE_FACE_CENTER, false);
     Verify.verify(
         ACTION_EXTRACT_FEATURE.equals(action) || ACTION_RECOGNIZE_FACE.equals(action), "参数传递有误.");
     if (ACTION_RECOGNIZE_FACE.equals(action)) {

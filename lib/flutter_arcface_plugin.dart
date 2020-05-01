@@ -194,19 +194,34 @@ class FlutterArcfacePlugin {
   }
 
   ///提取人脸特征.
-  static Future<dynamic> extract({bool useBackCamera = false}) async {
-    final dynamic result = await _channel.invokeMethod('extract', {'useBackCamera': useBackCamera});
+  static Future<dynamic> extract(
+      {bool useBackCamera = false,
+      bool genImageFile = false,
+      bool requireFaceCenter = false}) async {
+    assert(useBackCamera != null);
+    assert(genImageFile != null);
+    assert(requireFaceCenter != null);
+    final dynamic result = await _channel.invokeMethod('extract', {
+      'useBackCamera': useBackCamera,
+      "genImageFile": genImageFile,
+      "requireFaceCenter": requireFaceCenter
+    });
     return result;
   }
 
   ///人脸识别，返回相识度[0~1.0].
   ///[srcFeatureData] 经过BASE64编码后的源人脸特征.
   ///[similarThreshold] 相似度阀值.
-  static Future<double> recognize(String srcFeatureData, double similarThreshold) async {
+  static Future<double> recognize(String srcFeatureData, double similarThreshold,
+      {bool requireFaceCenter = false}) async {
     assert(srcFeatureData != null && srcFeatureData.isNotEmpty);
     assert(similarThreshold != null && similarThreshold > 0.0);
-    final double similar = await _channel.invokeMethod(
-        'recognize', {'src_feature': srcFeatureData, 'similar_threshold': similarThreshold});
+    assert(requireFaceCenter != null);
+    final double similar = await _channel.invokeMethod('recognize', {
+      'srcFeature': srcFeatureData,
+      'similarThreshold': similarThreshold,
+      "requireFaceCenter": requireFaceCenter
+    });
     return similar;
   }
 }
