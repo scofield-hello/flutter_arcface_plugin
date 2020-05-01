@@ -30,11 +30,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.Face3DAngle;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.LivenessInfo;
+import com.arcsoft.face.LivenessParam;
 import com.arcsoft.face.VersionInfo;
 import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
@@ -476,14 +478,29 @@ public class DetectActivity extends AppCompatActivity
           if (faceRectView != null && drawHelper != null) {
             drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
           }
+          code = faceEngine.process(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21,
+              faceInfoList, FaceEngine.ASF_FACE3DANGLE |FaceEngine.ASF_LIVENESS);
+          if (code != ErrorInfo.MOK){
+            return;
+          }
           if (requireFaceCenter){
-            if (ACTION_EXTRACT_FEATURE.equals(action) && !drawHelper
-                .isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
+            List<Face3DAngle> angles = new ArrayList<>(1);
+            code = faceEngine.getFace3DAngle(angles);
+            if (code != ErrorInfo.MOK  || angles.isEmpty()){
+              return;
+            }
+            Face3DAngle angle = angles.get(0);
+            if (angle.getStatus() != 0){
               tipView.setText(R.string.detect_center_tips);
               return;
             }
+            /*if (ACTION_EXTRACT_FEATURE.equals(action) && !drawHelper
+                .isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
+              tipView.setText(R.string.detect_center_tips);
+              return;
+            }*/
           }
-          code =
+          /*code =
               faceEngine.process(
                   nv21,
                   previewSize.width,
@@ -493,10 +510,10 @@ public class DetectActivity extends AppCompatActivity
                   FaceEngine.ASF_LIVENESS);
           if (code != ErrorInfo.MOK) {
             return;
-          }
+          }*/
           List<LivenessInfo> livenessInfoList = new ArrayList<LivenessInfo>();
           int livenessCode = faceEngine.getLiveness(livenessInfoList);
-          if (livenessCode != ErrorInfo.MOK) {
+          if (livenessCode != ErrorInfo.MOK && livenessInfoList.isEmpty()) {
             return;
           }
           if (livenessInfoList.get(0).getLiveness() != LivenessInfo.ALIVE) {
@@ -538,11 +555,15 @@ public class DetectActivity extends AppCompatActivity
         useBackCamera ? DetectFaceOrientPriority.ASF_OP_90_ONLY
             : DetectFaceOrientPriority.ASF_OP_270_ONLY;
     int combinedMask =
-        FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS | FaceEngine.ASF_FACE_RECOGNITION;
+        FaceEngine.ASF_FACE_DETECT
+            | FaceEngine.ASF_LIVENESS
+            | FaceEngine.ASF_FACE_RECOGNITION
+            | FaceEngine.ASF_FACE3DANGLE;
     faceEngine = new FaceEngine();
     afCode = faceEngine
         .init(this, DetectMode.ASF_DETECT_MODE_VIDEO, orientPriority,
             16, 20, combinedMask);
+    faceEngine.setLivenessParam(new LivenessParam(0.5f, 0.7f));
     VersionInfo versionInfo = new VersionInfo();
     FaceEngine.getVersion(versionInfo);
     Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
