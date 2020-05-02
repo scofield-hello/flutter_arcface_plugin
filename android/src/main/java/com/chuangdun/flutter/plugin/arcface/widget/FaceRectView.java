@@ -35,7 +35,7 @@ public class FaceRectView extends View {
     mPreviewPaint.setAntiAlias(true);
     mPreviewPaint.setStrokeWidth(5.0f);
     mPreviewPaint.setStyle(Style.STROKE);
-    int borderColor = Color.argb(255, 28, 196, 112);
+    int borderColor = Color.argb(255, 0, 145, 145);
     mPreviewPaint.setColor(borderColor);
     bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.preview);
   }
