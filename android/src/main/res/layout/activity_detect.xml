@@ -4,57 +4,7 @@
   android:layout_height="match_parent"
   android:background="@android:color/white">
   <FrameLayout
-    android:id="@+id/frameLayout"
-    android:layout_width="232dp"
-    android:layout_height="232dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_centerInParent="true">
-
-    <TextureView
-      android:id="@+id/texture_preview"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
-
-    <com.chuangdun.flutter.plugin.arcface.widget.FaceRectView
-      android:id="@+id/face_rect_view"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
-  </FrameLayout>
-  <TextView
-    android:id="@+id/tv_confirm"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_above="@+id/tv_tip"
-    android:layout_marginBottom="16dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_marginStart="8dp"
-    android:gravity="center"
-    android:text="@string/confirm_your_face"
-    android:textColor="@android:color/black"
-    android:textSize="16sp" />
-  <TextView
-    android:id="@+id/tv_tip"
-    android:textStyle="bold"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_above="@+id/frameLayout"
-    android:gravity="center"
-    android:text="@string/please_hold"
-    android:textColor="#666666"
-    android:textSize="13sp" />
-  <FrameLayout
+    android:id="@+id/header"
     android:layout_width="match_parent"
     android:layout_height="52dp"
     android:layout_alignParentStart="true"
@@ -79,8 +29,66 @@
       android:background="@drawable/ic_action_back_light" />
   </FrameLayout>
 
+  <TextView
+    android:id="@+id/tv_confirm"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/header"
+    android:layout_marginTop="32dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginStart="8dp"
+    android:gravity="center"
+    android:text="@string/confirm_your_face"
+    android:textColor="@android:color/black"
+    android:textSize="16sp" />
+  <TextView
+    android:id="@+id/tv_tip"
+    android:textStyle="bold"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginTop="12dp"
+    android:layout_below="@id/tv_confirm"
+    android:gravity="center"
+    android:text="@string/please_hold"
+    android:textColor="#666666"
+    android:textSize="13sp" />
+
+  <FrameLayout
+    android:id="@+id/frameLayout"
+    android:layout_width="232dp"
+    android:layout_height="232dp"
+    android:layout_marginTop="24dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_centerHorizontal="true"
+    android:layout_below="@id/tv_tip">
+
+    <TextureView
+      android:id="@+id/texture_preview"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+    <com.chuangdun.flutter.plugin.arcface.widget.FaceRectView
+      android:id="@+id/face_rect_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+  </FrameLayout>
+
+
+
   <LinearLayout
-    android:layout_width="285dp"
+    android:layout_width="match_parent"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
     android:layout_height="wrap_content"
     android:layout_below="@id/frameLayout"
     android:layout_alignParentStart="true"
@@ -97,6 +105,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal"
+      android:baselineAligned="false"
       android:gravity="center"
       android:weightSum="3">
       <LinearLayout
@@ -107,15 +116,15 @@
         android:gravity="center">
         <ImageView
           android:layout_width="match_parent"
-          android:layout_height="32dp"
+          android:layout_height="24dp"
           android:scaleType="fitCenter"
-          android:baselineAlignBottom="false"
           android:contentDescription="@string/tip_phone"
-          android:src="@android:drawable/ic_menu_camera">
+          android:src="@drawable/ic_phone">
         </ImageView>
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
           android:gravity="center"
           android:textSize="12sp"
           android:textColor="#333333"
@@ -130,15 +139,15 @@
         android:gravity="center">
         <ImageView
           android:layout_width="match_parent"
-          android:layout_height="32dp"
+          android:layout_height="24dp"
           android:scaleType="fitCenter"
-          android:baselineAlignBottom="false"
           android:contentDescription="@string/tip_light"
-          android:src="@android:drawable/ic_menu_camera">
+          android:src="@drawable/ic_light">
         </ImageView>
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
           android:gravity="center"
           android:textSize="12sp"
           android:textColor="#333333"
@@ -154,15 +163,15 @@
         android:gravity="center">
         <ImageView
           android:layout_width="match_parent"
-          android:layout_height="32dp"
+          android:layout_height="24dp"
           android:scaleType="fitCenter"
-          android:baselineAlignBottom="false"
           android:contentDescription="@string/tip_cover"
-          android:src="@android:drawable/ic_menu_camera">
+          android:src="@drawable/ic_face">
         </ImageView>
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
           android:gravity="center"
           android:textSize="12sp"
           android:textColor="#333333"
