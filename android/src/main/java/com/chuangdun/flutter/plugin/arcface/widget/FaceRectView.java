@@ -33,7 +33,7 @@ public class FaceRectView extends View {
     super(context, attrs);
     mPreviewPaint = new Paint();
     mPreviewPaint.setAntiAlias(true);
-    mPreviewPaint.setStrokeWidth(20.0f);
+    mPreviewPaint.setStrokeWidth(5.0f);
     mPreviewPaint.setStyle(Style.STROKE);
     int borderColor = Color.argb(255, 28, 196, 112);
     mPreviewPaint.setColor(borderColor);
@@ -60,7 +60,7 @@ public class FaceRectView extends View {
     super.onDraw(canvas);
     int width = getWidth();
     int height = getHeight();
-    int borderWidth = 20;
+    int borderWidth = 5;
     int radius = (Math.min(width, height) - borderWidth) / 2;
     int centerX = width / 2;
     int centerY = height / 2;

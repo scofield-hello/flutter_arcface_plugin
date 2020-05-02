@@ -7,12 +7,13 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import com.chuangdun.flutter.plugin.arcface.widget.FaceRectView;
+import java.util.List;
 
 /**
  * 绘制人脸框帮助类，用于在{@link com.chuangdun.flutter.plugin.arcface.widget.FaceRectView}上绘制矩形
  */
 public class DrawHelper {
-
+  private static final int FACE_CENTER_MAX_GAP = 50;
   private int previewWidth, previewHeight, canvasWidth, canvasHeight, cameraDisplayOrientation, cameraId;
   private boolean isMirror;
   private boolean mirrorHorizontal = false, mirrorVertical = false;
@@ -72,29 +73,45 @@ public class DrawHelper {
     canvas.drawPath(mPath, paint);
   }
 
-  public void draw(FaceRectView faceRectView, Rect drawInfo) {
-    if (faceRectView == null || drawInfo == null) {
+  public void draw(FaceRectView faceRectView, Rect faceRect) {
+    if (faceRectView == null || faceRect == null) {
       return;
     }
     faceRectView.clearFaceInfo();
-    Rect adjustRect = adjustRect(drawInfo);
+    Rect adjustRect = adjustRect(faceRect);
     faceRectView.addFaceInfo(adjustRect);
   }
 
-  public boolean isCenterOfView(FaceRectView faceRectView, Rect faceRect) {
+  public void draw(FaceRectView faceRectView, List<Rect> faceRectList) {
+    if (faceRectView == null) {
+      return;
+    }
+    faceRectView.clearFaceInfo();
+    if (faceRectList == null || faceRectList.size() == 0) {
+      return;
+    }
+    faceRectView.addFaceInfo(faceRectList);
+  }
+
+
+  /**
+   * 判断人脸框是否在FaceRectView中间位置.
+   * 人脸中心点如果距离视图中心点偏差小于{@link DrawHelper#FACE_CENTER_MAX_GAP}则表明是居中的.
+   * @param faceRectView 人脸预览视图
+   * @param faceRect 人脸Rect
+   * @return 居中返回true，反之返回false
+   */
+  public boolean isFaceCentered(FaceRectView faceRectView, Rect faceRect) {
     if (faceRectView == null || faceRect == null) {
       return false;
     }
-    Rect rect = adjustRect(faceRect);
-    int xOffset = (rect.width()) / 2;
-    int yOffset = (rect.height()) / 2;
-    int minLeft = canvasWidth / 2 - xOffset - 20;
-    int minTop = canvasHeight / 2 - yOffset - 20;
-    int maxRight = canvasWidth / 2 + xOffset + 20;
-    int maxBottom = canvasHeight / 2 + yOffset + 20;
-    return rect.left >= minLeft && rect.top >= minTop && rect.right <= maxRight
-        && rect.bottom <= maxBottom;
-
+    Rect adjustedRect = adjustRect(faceRect);
+    int adjustedRectCenterX = adjustedRect.left + (adjustedRect.width() / 2);
+    int adjustedRectCenterY = adjustedRect.top + (adjustedRect.height() / 2);
+    int viewCenterX = faceRectView.getWidth() / 2;
+    int viewCenterY = faceRectView.getHeight() / 2;
+    return (Math.abs(viewCenterX - adjustedRectCenterX) <= FACE_CENTER_MAX_GAP)
+        && (Math.abs(viewCenterY - adjustedRectCenterY) <= FACE_CENTER_MAX_GAP);
   }
 
   /**

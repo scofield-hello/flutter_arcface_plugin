@@ -95,17 +95,13 @@ public class FlutterArcfacePlugin
           call.<Boolean>argument("useBackCamera") : false;
       boolean genImageFile = call.hasArgument("genImageFile") ?
           call.<Boolean>argument("genImageFile") : false;
-      boolean requireFaceCenter = call.hasArgument("requireFaceCenter") ?
-          call.<Boolean>argument("requireFaceCenter") : false;
-      Intent intent = DetectActivity.extract(activity, useBackCamera, genImageFile, requireFaceCenter);
+      Intent intent = DetectActivity.extract(activity, useBackCamera, genImageFile);
       activity.startActivityForResult(intent, ACTION_REQUEST_EXTRACT);
     } else if (call.method.equals(METHOD_RECOGNIZE)) {
       String srcFeatureData = call.argument("srcFeature");
       double similarThreshold = call.<Double>argument("similarThreshold");
       float floatSimilarThreshold = Float.parseFloat(Double.toString(similarThreshold));
-      boolean requireFaceCenter = call.hasArgument("requireFaceCenter") ?
-          call.<Boolean>argument("requireFaceCenter") : false;
-      Intent intent = DetectActivity.recognize(activity, floatSimilarThreshold, srcFeatureData, requireFaceCenter);
+      Intent intent = DetectActivity.recognize(activity, floatSimilarThreshold, srcFeatureData);
       activity.startActivityForResult(intent, ACTION_REQUEST_RECOGNIZE);
     } else {
       result.notImplemented();

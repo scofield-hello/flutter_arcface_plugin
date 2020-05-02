@@ -13,13 +13,20 @@
     <string name="active_h2">开启您的专属通道，更快、更智能</string>
     <string name="active_button_compare">进入人脸认证</string>
     <string name="active_button_register">进入人脸注册</string>
-    <string name="detect_default_tips">拿起手机，眨眨眼</string>
+    <string name="confirm_your_face">请确认是您本人操作</string>
     <string name="detect_many_face_tips">不允许出现多张人脸</string>
-    <string name="detect_eyes_tips">请眨一眨您的眼睛</string>
-    <string name="detect_center_tips">请将人脸居于中心位置</string>
+    <string name="please_blink">请眨一眨您的眼睛</string>
+    <string name="please_hold">保持人脸在取景框中等待识别完成</string>
+    <string name="face_not_detected">请将摄像头正对您的脸部</string>
+    <string name="please_adjust_face">请将人脸居于取景框中</string>
+    <string name="adjust_face_angle">请调整人脸角度,不要偏斜</string>
     <string name="retry_compare">比对失败，点击重试</string>
     <string name="extract_feature_success">人脸特征提取成功</string>
     <string name="extract_feature_failed">人脸特征提取失败</string>
     <string name="compare_face_success">人脸比对成功</string>
-    <string name="compare_face_failed">人脸比对失败</string>
+    <string name="compare_face_failed">人脸比对失败, 正在重试</string>
+    <string name="title_face_rec">人脸识别</string>
+    <string name="tip_phone">正对手机</string>
+    <string name="tip_light">光线充足</string>
+    <string name="tip_cover">脸无遮挡</string>
 </resources>

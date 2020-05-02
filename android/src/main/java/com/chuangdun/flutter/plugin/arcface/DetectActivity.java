@@ -46,10 +46,12 @@ import com.chuangdun.flutter.plugin.arcface.util.DrawHelper;
 import com.chuangdun.flutter.plugin.arcface.util.camera.CameraHelper;
 import com.chuangdun.flutter.plugin.arcface.util.camera.CameraListener;
 import com.chuangdun.flutter.plugin.arcface.widget.FaceRectView;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Verify;
 import com.google.common.base.VerifyException;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -76,7 +78,6 @@ public class DetectActivity extends AppCompatActivity
   public static final String ACTION_RECOGNIZE_FACE = "recognize";
   public static final String ACTION_EXTRACT_FEATURE = "extract";
   public static final String EXTRA_GEN_IMAGE_FILE = "gen_image_file";
-  public static final String EXTRA_REQUIRE_FACE_CENTER = "require_face_center";
   public static final String EXTRA_ACTION = "action";
   public static final String EXTRA_USE_BACK_CAMERA = "use_back_camera";
   public static final String EXTRA_SRC_FEATURE = "src_feature";
@@ -84,16 +85,14 @@ public class DetectActivity extends AppCompatActivity
   private static final String TAG = "DetectActivity";
   private static final int EXTRACT_FEATURE = 0;
   private static final int COMPARE_FACE = 1;
-  private static final int SHOW_RETRY = 2;
-  private static final int DEFAULT_PREVIEW_WIDTH = 320;
-  private static final int DEFAULT_PREVIEW_HEIGHT = 240;
+  private static final int COMPARE_FAILED = 2;
+  /*private static final int DEFAULT_PREVIEW_WIDTH = 320;
+  private static final int DEFAULT_PREVIEW_HEIGHT = 240;*/
   private static ThreadFactory threadFactory =
       new ThreadFactoryBuilder().setNameFormat("arcface_pool_%d").build();
   private String action;
 
   private int afCode = -1;
-
-  private Button btnRetry;
 
   private CameraHelper cameraHelper;
 
@@ -111,17 +110,13 @@ public class DetectActivity extends AppCompatActivity
 
   private Camera.Size previewSize;
 
-  /**
-   * 相机预览显示的控件，可为SurfaceView或TextureView
-   */
   private TextureView previewView;
 
   private float similarThreshold;
 
   private String srcFeatureData;
   private boolean useBackCamera;
-  private boolean genImageFile = true;
-  private boolean requireFaceCenter = true;
+  private boolean genImageFile;
 
   private ExecutorService threadPool =
       new ThreadPoolExecutor(
@@ -135,21 +130,19 @@ public class DetectActivity extends AppCompatActivity
    */
   private TextView tipView;
 
-  public static Intent extract(Context context, boolean useBackCamera, boolean genImageFile, boolean requireFaceCenter) {
+  public static Intent extract(Context context, boolean useBackCamera, boolean genImageFile) {
     Intent intent = new Intent(context, DetectActivity.class);
     intent.putExtra(EXTRA_ACTION, ACTION_EXTRACT_FEATURE);
     intent.putExtra(EXTRA_USE_BACK_CAMERA, useBackCamera);
     intent.putExtra(EXTRA_GEN_IMAGE_FILE, genImageFile);
-    intent.putExtra(EXTRA_REQUIRE_FACE_CENTER, requireFaceCenter);
     return intent;
   }
 
-  public static Intent recognize(Context context, float similarThreshold, String srcFeatureData, boolean requireFaceCenter) {
+  public static Intent recognize(Context context, float similarThreshold, String srcFeatureData) {
     Intent intent = new Intent(context, DetectActivity.class);
     intent.putExtra(EXTRA_ACTION, ACTION_RECOGNIZE_FACE);
     intent.putExtra(EXTRA_SIMILAR_THRESHOLD, similarThreshold);
     intent.putExtra(EXTRA_SRC_FEATURE, srcFeatureData);
-    intent.putExtra(EXTRA_REQUIRE_FACE_CENTER, requireFaceCenter);
     return intent;
   }
 
@@ -192,12 +185,13 @@ public class DetectActivity extends AppCompatActivity
                 FaceFeature src = new FaceFeature(srcData);
                 compareFace(src, dest);
                 break;
-              case SHOW_RETRY:
+              case COMPARE_FAILED:
                 runOnUiThread(
                     new Runnable() {
                       @Override
                       public void run() {
-                        btnRetry.setVisibility(View.VISIBLE);
+                        tipView.setText(R.string.compare_face_failed);
+                        handler.sendEmptyMessage(EXTRACT_FEATURE);
                       }
                     });
                 break;
@@ -209,10 +203,8 @@ public class DetectActivity extends AppCompatActivity
     tipView = findViewById(R.id.tv_tip);
     previewView = findViewById(R.id.texture_preview);
     faceRectView = findViewById(R.id.face_rect_view);
-    btnRetry = findViewById(R.id.btn_retry);
     AppCompatImageButton navBackButton = findViewById(R.id.btn_back);
     previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
-    btnRetry.setOnClickListener(this);
     navBackButton.setOnClickListener(this);
   }
 
@@ -223,7 +215,6 @@ public class DetectActivity extends AppCompatActivity
     outState.putString(EXTRA_SRC_FEATURE, srcFeatureData);
     outState.putFloat(EXTRA_SIMILAR_THRESHOLD, similarThreshold);
     outState.putBoolean(EXTRA_GEN_IMAGE_FILE, genImageFile);
-    outState.putBoolean(EXTRA_REQUIRE_FACE_CENTER, requireFaceCenter);
     super.onSaveInstanceState(outState);
   }
 
@@ -270,14 +261,14 @@ public class DetectActivity extends AppCompatActivity
           @Override
           public void onFailure(@NonNull final Throwable t) {
             Log.e(TAG, String.format("人脸比对--失败，线程: %s", Thread.currentThread().getName()), t);
-            handler.sendEmptyMessage(SHOW_RETRY);
+            handler.sendEmptyMessage(COMPARE_FAILED);
           }
 
           @Override
           public void onSuccess(@NonNull final FaceSimilar similar) {
             Log.i(TAG, String.format("人脸比对--成功，得分： %f", similar.getScore()));
             if (similar.getScore() < similarThreshold) {
-              handler.sendEmptyMessage(SHOW_RETRY);
+              handler.sendEmptyMessage(COMPARE_FAILED);
             } else {
               Intent data = new Intent();
               data.putExtra("similar", similar.getScore());
@@ -442,13 +433,11 @@ public class DetectActivity extends AppCompatActivity
       }
 
       @Override
-      public void onCameraOpened(
-          Camera camera, int cameraId, int displayOrientation, boolean isMirror) {
+      public void onCameraOpened(Camera camera, int cameraId, int displayOrientation, boolean isMirror) {
         previewSize = camera.getParameters().getPreviewSize();
         drawHelper = new DrawHelper(previewSize.width, previewSize.height, previewView.getWidth(),
             previewView.getHeight(), displayOrientation
             , cameraId, isMirror, false, false);
-        Log.i(TAG, "onCameraOpened: " + drawHelper.toString());
         handler.sendEmptyMessage(0);
       }
 
@@ -469,76 +458,71 @@ public class DetectActivity extends AppCompatActivity
           return;
         }
         if (faceInfoList.size() == 0) {
-          tipView.setText(R.string.detect_center_tips);
+          tipView.setText(R.string.face_not_detected);
           return;
         }
-        if (faceInfoList.size() > 1) {
+        if (faceInfoList.size() > 1){
           tipView.setText(R.string.detect_many_face_tips);
-        } else {
           if (faceRectView != null && drawHelper != null) {
-            drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
+            drawHelper.draw(faceRectView, Lists.transform(faceInfoList,
+                new Function<FaceInfo, Rect>() {
+                  @Override
+                  public Rect apply(FaceInfo input) {
+                    return drawHelper.adjustRect(input.getRect());
+                  }
+                }));
           }
-          code = faceEngine.process(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21,
-              faceInfoList, FaceEngine.ASF_FACE3DANGLE |FaceEngine.ASF_LIVENESS);
-          if (code != ErrorInfo.MOK){
-            return;
-          }
-          if (requireFaceCenter){
-            List<Face3DAngle> angles = new ArrayList<>(1);
-            code = faceEngine.getFace3DAngle(angles);
-            if (code != ErrorInfo.MOK  || angles.isEmpty()){
-              return;
-            }
-            Face3DAngle angle = angles.get(0);
-            if (angle.getStatus() != 0){
-              tipView.setText(R.string.detect_center_tips);
-              return;
-            }
-            /*if (ACTION_EXTRACT_FEATURE.equals(action) && !drawHelper
-                .isCenterOfView(faceRectView, faceInfoList.get(0).getRect())) {
-              tipView.setText(R.string.detect_center_tips);
-              return;
-            }*/
-          }
-          /*code =
-              faceEngine.process(
-                  nv21,
-                  previewSize.width,
-                  previewSize.height,
-                  FaceEngine.CP_PAF_NV21,
-                  faceInfoList,
-                  FaceEngine.ASF_LIVENESS);
-          if (code != ErrorInfo.MOK) {
-            return;
-          }*/
-          List<LivenessInfo> livenessInfoList = new ArrayList<LivenessInfo>();
-          int livenessCode = faceEngine.getLiveness(livenessInfoList);
-          if (livenessCode != ErrorInfo.MOK && livenessInfoList.isEmpty()) {
-            return;
-          }
-          if (livenessInfoList.get(0).getLiveness() != LivenessInfo.ALIVE) {
-            tipView.setText(R.string.detect_eyes_tips);
-            return;
-          } else {
-            tipView.setText("");
-          }
-          FaceFeatureTask task =
-              new FaceFeatureTask(
-                  faceEngine,
-                  nv21,
-                  previewSize.width,
-                  previewSize.height,
-                  FaceEngine.CP_PAF_NV21,
-                  faceInfoList.get(0));
-          mBlockingQueue.offer(task);
+          return;
         }
+        if (faceRectView != null && drawHelper != null) {
+          drawHelper.draw(faceRectView, faceInfoList.get(0).getRect());
+        }
+        if (!drawHelper.isFaceCentered(faceRectView, faceInfoList.get(0).getRect())){
+          tipView.setText(R.string.please_adjust_face);
+          return;
+        }
+        code = faceEngine.process(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21,
+            faceInfoList, FaceEngine.ASF_FACE3DANGLE |FaceEngine.ASF_LIVENESS);
+        if (code != ErrorInfo.MOK){
+          return;
+        }
+        List<Face3DAngle> angles = new ArrayList<>(1);
+        code = faceEngine.getFace3DAngle(angles);
+        if (code != ErrorInfo.MOK  || angles.isEmpty()){
+          return;
+        }
+        Face3DAngle angle = angles.get(0);
+        if (angle.getStatus() != 0){
+          tipView.setText(R.string.adjust_face_angle);
+          return;
+        }
+        List<LivenessInfo> livenessInfoList = new ArrayList<LivenessInfo>();
+        int livenessCode = faceEngine.getLiveness(livenessInfoList);
+        if (livenessCode != ErrorInfo.MOK && livenessInfoList.isEmpty()) {
+          return;
+        }
+        if (livenessInfoList.get(0).getLiveness() != LivenessInfo.ALIVE) {
+          tipView.setText(R.string.please_blink);
+          return;
+        } else {
+          tipView.setText(R.string.please_hold);
+        }
+        FaceFeatureTask task =
+            new FaceFeatureTask(
+                faceEngine,
+                nv21,
+                previewSize.width,
+                previewSize.height,
+                FaceEngine.CP_PAF_NV21,
+                faceInfoList.get(0));
+        mBlockingQueue.offer(task);
       }
     };
     cameraHelper =
         new CameraHelper.Builder()
             .previewViewSize(
                 new Point(previewView.getMeasuredWidth(), previewView.getMeasuredHeight()))
-            .previewSize(new Point(DEFAULT_PREVIEW_WIDTH, DEFAULT_PREVIEW_HEIGHT))
+            //.previewSize(new Point(DEFAULT_PREVIEW_WIDTH, DEFAULT_PREVIEW_HEIGHT))
             .rotation(getWindowManager().getDefaultDisplay().getRotation())
             .specificCameraId(useBackCamera ? CameraInfo.CAMERA_FACING_BACK
                 : Camera.CameraInfo.CAMERA_FACING_FRONT)
@@ -584,7 +568,6 @@ public class DetectActivity extends AppCompatActivity
     action = savedInstanceState.getString(EXTRA_ACTION, ACTION_EXTRACT_FEATURE);
     useBackCamera = savedInstanceState.getBoolean(EXTRA_USE_BACK_CAMERA, false);
     genImageFile = savedInstanceState.getBoolean(EXTRA_GEN_IMAGE_FILE, false);
-    requireFaceCenter = savedInstanceState.getBoolean(EXTRA_REQUIRE_FACE_CENTER, false);
     Verify.verify(
         ACTION_EXTRACT_FEATURE.equals(action) || ACTION_RECOGNIZE_FACE.equals(action), "参数传递有误.");
     if (ACTION_RECOGNIZE_FACE.equals(action)) {
@@ -604,10 +587,7 @@ public class DetectActivity extends AppCompatActivity
 
   @Override
   public void onClick(View v) {
-    if (v.getId() == R.id.btn_retry) {
-      btnRetry.setVisibility(View.INVISIBLE);
-      handler.sendEmptyMessage(EXTRACT_FEATURE);
-    } else if (v.getId() == R.id.btn_back) {
+    if (v.getId() == R.id.btn_back) {
       if (!service.isTerminated()) {
         service.shutdownNow();
       }

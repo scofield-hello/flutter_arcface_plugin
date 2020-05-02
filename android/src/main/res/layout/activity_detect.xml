@@ -3,26 +3,10 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="@android:color/white">
-  <Button
-    android:id="@+id/btn_retry"
-    android:layout_width="240dp"
-    android:layout_height="40dp"
-    android:layout_marginTop="32dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_below="@id/frameLayout"
-    android:layout_centerHorizontal="true"
-    android:background="@drawable/active_button_bg"
-    android:text="@string/retry_compare"
-    android:textColor="@android:color/white"
-    android:textSize="20sp"
-    android:visibility="invisible" />
   <FrameLayout
     android:id="@+id/frameLayout"
-    android:layout_width="240dp"
-    android:layout_height="320dp"
+    android:layout_width="232dp"
+    android:layout_height="232dp"
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     android:layout_marginStart="8dp"
@@ -41,7 +25,20 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
   </FrameLayout>
-
+  <TextView
+    android:id="@+id/tv_confirm"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_above="@+id/tv_tip"
+    android:layout_marginBottom="16dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginStart="8dp"
+    android:gravity="center"
+    android:text="@string/confirm_your_face"
+    android:textColor="@android:color/black"
+    android:textSize="16sp" />
   <TextView
     android:id="@+id/tv_tip"
     android:textStyle="bold"
@@ -54,16 +51,126 @@
     android:layout_marginRight="8dp"
     android:layout_above="@+id/frameLayout"
     android:gravity="center"
-    android:text="@string/detect_default_tips"
-    android:textColor="@android:color/black"
-    android:textSize="18sp" />
-
-  <androidx.appcompat.widget.AppCompatImageButton
-    android:id="@+id/btn_back"
-    android:layout_width="52dp"
+    android:text="@string/please_hold"
+    android:textColor="#666666"
+    android:textSize="13sp" />
+  <FrameLayout
+    android:layout_width="match_parent"
     android:layout_height="52dp"
-    android:layout_alignParentLeft="true"
     android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true"
     android:layout_alignParentTop="true"
-    android:background="@drawable/ic_action_back_light" />
+    >
+    <TextView
+      android:id="@+id/title"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:text="@string/title_face_rec"
+      android:textColor="@android:color/black"
+      android:textSize="18sp"
+      android:textStyle="bold"
+      android:layout_gravity="center">
+    </TextView>
+    <androidx.appcompat.widget.AppCompatImageButton
+      android:id="@+id/btn_back"
+      android:layout_width="52dp"
+      android:layout_height="52dp"
+      android:background="@drawable/ic_action_back_light" />
+  </FrameLayout>
+
+  <LinearLayout
+    android:layout_width="285dp"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/frameLayout"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginTop="32dp"
+    android:orientation="vertical"
+    android:gravity="center">
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="#DEDEDE"/>
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="center"
+      android:weightSum="3">
+      <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+        <ImageView
+          android:layout_width="match_parent"
+          android:layout_height="32dp"
+          android:scaleType="fitCenter"
+          android:baselineAlignBottom="false"
+          android:contentDescription="@string/tip_phone"
+          android:src="@android:drawable/ic_menu_camera">
+        </ImageView>
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:textSize="12sp"
+          android:textColor="#333333"
+          android:text="@string/tip_phone">
+        </TextView>
+      </LinearLayout>
+      <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+        <ImageView
+          android:layout_width="match_parent"
+          android:layout_height="32dp"
+          android:scaleType="fitCenter"
+          android:baselineAlignBottom="false"
+          android:contentDescription="@string/tip_light"
+          android:src="@android:drawable/ic_menu_camera">
+        </ImageView>
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:textSize="12sp"
+          android:textColor="#333333"
+          android:text="@string/tip_light">
+        </TextView>
+
+      </LinearLayout>
+      <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+        <ImageView
+          android:layout_width="match_parent"
+          android:layout_height="32dp"
+          android:scaleType="fitCenter"
+          android:baselineAlignBottom="false"
+          android:contentDescription="@string/tip_cover"
+          android:src="@android:drawable/ic_menu_camera">
+        </ImageView>
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:textSize="12sp"
+          android:textColor="#333333"
+          android:text="@string/tip_cover">
+        </TextView>
+
+      </LinearLayout>
+    </LinearLayout>
+  </LinearLayout>
+
 </RelativeLayout>
