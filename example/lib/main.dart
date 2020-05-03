@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,31 +13,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int _activeCode = 10000000;
+  final String _appId = "";
+  final String _sdkKey ="";
+  String feature;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    int activeCode;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      activeCode = await FlutterArcfacePlugin.active("", "");
-    } on PlatformException {
-      activeCode = 10000000;
-    }
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
-
-    setState(() {
-      _activeCode = _activeCode;
-    });
   }
 
   @override
@@ -47,9 +34,52 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Active Code : $_activeCode\n'),
+          child:Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              FlatButton.icon(
+                onPressed: _extraFeature,
+                icon: Icon(Icons.fingerprint),
+                label: Text("特征提取"),
+              ),
+              FlatButton.icon(
+                onPressed: _recognize,
+                icon: Icon(Icons.face),
+                label: Text("人脸识别"),
+              ),
+            ],
+          )
         ),
       ),
     );
+  }
+
+  void _extraFeature() async{
+    try {
+      var activeResult = await FlutterArcfacePlugin.active(_appId, _sdkKey);
+      if (ArcFaceErrors.isActiveOk(activeResult)) {
+        var featureResult = await FlutterArcfacePlugin.extract();
+        feature = featureResult.feature;
+        print("特征提取: ${featureResult.asJson()}");
+      } else {
+        print(ArcFaceErrors.errorMsg(activeResult));
+      }
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  void _recognize() async{
+    try {
+      var activeResult = await FlutterArcfacePlugin.active(_appId, _sdkKey);
+      if (ArcFaceErrors.isActiveOk(activeResult)) {
+        var compareResult = await FlutterArcfacePlugin.recognize(feature, 0.8);
+        print("人脸比对: ${compareResult.asJson()}");
+      } else {
+        print(ArcFaceErrors.errorMsg(activeResult));
+      }
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
   }
 }

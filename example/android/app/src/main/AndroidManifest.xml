@@ -34,5 +34,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.chuangdun.flutter.plugin.arcface.DetectActivity"
+            android:theme="@style/ArcFaceTheme" />
     </application>
 </manifest>

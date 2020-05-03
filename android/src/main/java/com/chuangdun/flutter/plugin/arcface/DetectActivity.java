@@ -86,8 +86,8 @@ public class DetectActivity extends AppCompatActivity
   private static final int EXTRACT_FEATURE = 0;
   private static final int COMPARE_FACE = 1;
   private static final int COMPARE_FAILED = 2;
-  /*private static final int DEFAULT_PREVIEW_WIDTH = 320;
-  private static final int DEFAULT_PREVIEW_HEIGHT = 240;*/
+  private static final int DEFAULT_PREVIEW_WIDTH = 320;
+  private static final int DEFAULT_PREVIEW_HEIGHT = 240;
   private static ThreadFactory threadFactory =
       new ThreadFactoryBuilder().setNameFormat("arcface_pool_%d").build();
   private String action;
@@ -270,8 +270,11 @@ public class DetectActivity extends AppCompatActivity
             if (similar.getScore() < similarThreshold) {
               handler.sendEmptyMessage(COMPARE_FAILED);
             } else {
+              String featureData = Base64.encodeToString(
+                      dest.getFeatureData(), Base64.DEFAULT);
               Intent data = new Intent();
               data.putExtra("similar", similar.getScore());
+              data.putExtra("feature", featureData);
               setResult(RESULT_OK, data);
               finish();
             }
@@ -492,7 +495,13 @@ public class DetectActivity extends AppCompatActivity
           return;
         }
         Face3DAngle angle = angles.get(0);
-        if (angle.getStatus() != 0){
+//        Log.d(TAG, "onPreview: angle pitch:"+ angle.getPitch());
+//        Log.d(TAG, "onPreview: angle roll:"+ angle.getRoll());
+//        Log.d(TAG, "onPreview: angle yaw:"+ angle.getYaw());
+        boolean rightPitch = angle.getPitch() >= -10.0f && angle.getPitch() <= 10.0f;
+        boolean rightRoll = angle.getRoll() >= -110.0f && angle.getRoll() <= -70.0f;
+        boolean rightYaw = angle.getYaw() >= -20.0f && angle.getYaw() <= 20.0f;
+        if (angle.getStatus() != 0 || !rightPitch || !rightRoll || !rightYaw){
           tipView.setText(R.string.adjust_face_angle);
           return;
         }
@@ -522,7 +531,7 @@ public class DetectActivity extends AppCompatActivity
         new CameraHelper.Builder()
             .previewViewSize(
                 new Point(previewView.getMeasuredWidth(), previewView.getMeasuredHeight()))
-            //.previewSize(new Point(DEFAULT_PREVIEW_WIDTH, DEFAULT_PREVIEW_HEIGHT))
+            .previewSize(new Point(DEFAULT_PREVIEW_WIDTH, DEFAULT_PREVIEW_HEIGHT))
             .rotation(getWindowManager().getDefaultDisplay().getRotation())
             .specificCameraId(useBackCamera ? CameraInfo.CAMERA_FACING_BACK
                 : Camera.CameraInfo.CAMERA_FACING_FRONT)
