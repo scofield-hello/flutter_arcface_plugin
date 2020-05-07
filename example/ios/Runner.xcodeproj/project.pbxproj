@@ -221,6 +221,15 @@
 				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_action_back_light.png",
 				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_action_back_light@2x.png",
 				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_action_back_light@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_face.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_face@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_face@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_light.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_light@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_light@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_phone.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_phone@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/ic_phone@3x.png",
 				"${PODS_ROOT}/../.symlinks/plugins/flutter_arcface_plugin/ios/Resource/libstdc++.6.0.9.tbd",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -228,6 +237,15 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_action_back_light.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_action_back_light@2x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_action_back_light@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_face.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_face@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_face@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_light.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_light@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_light@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_phone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_phone@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_phone@3x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libstdc++.6.0.9.tbd",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

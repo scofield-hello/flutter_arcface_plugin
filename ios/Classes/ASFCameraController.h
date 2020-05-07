@@ -12,7 +12,7 @@
 
 @property (nonatomic, weak)     id <ASFCameraControllerDelegate>    delegate;
 
-- (BOOL) setupCaptureSession:(AVCaptureVideoOrientation)videoOrientation isPositionBack:(BOOL)isPositionBack;
+- (BOOL) setupCaptureSession:(AVCaptureVideoOrientation)videoOrientation useBackCamera:(BOOL)useBackCamera;
 - (void) startCaptureSession;
 - (void) stopCaptureSession;
 

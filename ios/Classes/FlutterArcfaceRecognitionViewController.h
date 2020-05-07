@@ -10,10 +10,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FlutterArcfaceRecognitionViewController : UIViewController
-@property (nonatomic, assign)NSInteger type;
-@property (nonatomic, strong)NSData *videoData;
-@property (nonatomic, copy)NSString *maxScore;
-@property (nonatomic)BOOL isPositionBack;
+//@property (nonatomic, assign)NSInteger type;
+//@property (nonatomic, strong)NSData *videoData;
+//@property (nonatomic, copy)NSString *maxScore;
+//@property (nonatomic)BOOL useBackCamera;
+//@property (nonatomic)BOOL genImageFile;
+//@property (nonatomic)float similarThold;
+- (instancetype)initWithAction:(NSInteger)action
+                 useBackCamera:(BOOL)useBackCamera
+                  genImageFile:(BOOL)genImageFile
+                    srcFeature:(NSData*)srcFeature
+              similarThreshold:(float)similarThreshold;
 @end
 
 NS_ASSUME_NONNULL_END

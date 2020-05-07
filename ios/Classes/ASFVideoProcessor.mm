@@ -8,13 +8,12 @@
 #import <ArcSoftFaceEngine/ArcSoftFaceEngineDefine.h>
 #import <ArcSoftFaceEngine/merror.h>
 
-//#define ASF_APPID            @"GKgxanYQak7mHzUZcMxdPKnx1z3fhAkyTemnGu569dHL"
-//#define ASF_SDKKEY           @"Hzmu3U6H5NyDRDNEUxD8W4ty2xzKXdV55suALPo99Lks"
 #define DETECT_MODE          ASF_DETECT_MODE_VIDEO
-#define ASF_FACE_NUM         6
+#define ASF_FACE_NUM         50
 #define ASF_FACE_SCALE       16
-#define ASF_FACE_COMBINEDMASK ASF_FACE_DETECT | ASF_FACERECOGNITION | ASF_FACE3DANGLE
+#define ASF_FACE_COMBINEDMASK ASF_FACE_DETECT | ASF_FACERECOGNITION | ASF_FACE3DANGLE | ASF_LIVENESS
 #define kSandboxPathStr [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject]
+
 @implementation ASFFace3DAngle
 @end
 
@@ -27,10 +26,8 @@
     dispatch_semaphore_t _processSemaphore;
     dispatch_semaphore_t _processFRSemaphore;
 }
-@property (nonatomic, assign) BOOL              frModelVersionChecked;
-@property (atomic, strong) ASFRPerson*           frPerson;
-
-@property (nonatomic, strong) ArcSoftFaceEngine*      arcsoftFace;
+@property (nonatomic, assign) BOOL frModelVersionChecked;
+@property (nonatomic, strong) ArcSoftFaceEngine* arcsoftFace;
 @end
 
 @implementation ASFVideoProcessor
@@ -44,8 +41,8 @@
     return self;
 }
 
-- (void)initProcessor
-{
+- (void)initProcessor{
+    
     self.arcsoftFace = [[ArcSoftFaceEngine alloc] init];
     MRESULT mr = [self.arcsoftFace initFaceEngineWithDetectMode:DETECT_MODE
                                                  orientPriority:ASF_OP_0_ONLY
@@ -57,28 +54,22 @@
     } else {
         NSLog(@"初始化失败：%ld", mr);
     }
-    
+     [self.arcsoftFace setLivenessThreshold:0.5f];
     _processSemaphore = dispatch_semaphore_create(1);
     _processFRSemaphore = dispatch_semaphore_create(1);
 }
 
-- (void)uninitProcessor
-{
-    if(_processSemaphore && 0 == dispatch_semaphore_wait(_processSemaphore, DISPATCH_TIME_FOREVER))
-    {
+- (void)uninitProcessor{
+    if(_processSemaphore && 0 == dispatch_semaphore_wait(_processSemaphore, DISPATCH_TIME_FOREVER)){
         dispatch_semaphore_signal(_processSemaphore);
         _processSemaphore = NULL;
     }
-    
-    if(_processFRSemaphore && 0 == dispatch_semaphore_wait(_processFRSemaphore, DISPATCH_TIME_FOREVER))
-    {
+    if(_processFRSemaphore && 0 == dispatch_semaphore_wait(_processFRSemaphore, DISPATCH_TIME_FOREVER)){
         [Utility freeCameraData:_cameraDataForProcessFR];
         _cameraDataForProcessFR = MNull;
-        
         dispatch_semaphore_signal(_processFRSemaphore);
         _processFRSemaphore = NULL;
     }
-    
     [self.arcsoftFace unInitFaceEngine];
     self.arcsoftFace = nil;
 }
@@ -98,170 +89,182 @@
     return _detectFaceUseFD;
 }
 
-- (NSArray*)process:(ASF_CAMERA_DATA*)cameraData WithDataInfo:(NSData *)imageData WithMaxScore:(NSString *)maxScore WithType:(NSInteger)type WithImageInfo:(UIImage *)imageInfo
-{
+- (NSArray*)process:(ASF_CAMERA_DATA*)cameraData
+         srcFeature:(NSData *)srcFeature
+       genImageFile:(BOOL)genImageFile
+   similarThreshold:(float)similarThreshold
+             action:(NSInteger)action
+          imageInfo:(UIImage *)imageInfo{
     NSMutableArray *arrayFaceInfo = nil;
-    if(0 == dispatch_semaphore_wait(_processSemaphore, 3))
-    {
+    if(0 == dispatch_semaphore_wait(_processSemaphore, 3)){
         __block BOOL detectFace = NO;
         __block ASF_SingleFaceInfo singleFaceInfo = {0};
-        __weak ASFVideoProcessor* weakSelf = self;
+        __weak __typeof(self) weakSelf = self;
         do {
-            ASF_MultiFaceInfo multiFaceInfo = {0};
+            ASF_MultiFaceInfo asfMultiFaceInfo = {0};
             MRESULT mr = [self.arcsoftFace detectFacesWithWidth:cameraData->i32Width
                                                          height:cameraData->i32Height
                                                            data:cameraData->ppu8Plane[0]
                                                          format:cameraData->u32PixelArrayFormat
-                                                        faceRes:&multiFaceInfo];
-            if(ASF_MOK != mr || multiFaceInfo.faceNum != 1) {
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                        [self.delegate processRecognized:@"没有检测到人脸" WithType:0];
-                });
-                if (multiFaceInfo.faceNum>1) {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-                        if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                            [self.delegate processRecognized:@"不允许出现多张人脸" WithType:0];
-                    });
-                }
+                                                        faceRes:&asfMultiFaceInfo];
+            if (ASF_MOK != mr) {
                 break;
             }
-            arrayFaceInfo = [NSMutableArray arrayWithCapacity:0];
-            for (int face=0; face<multiFaceInfo.faceNum; face++) {
+            if (asfMultiFaceInfo.faceNum == 0) {
+                //未检测到人脸
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    __strong __typeof(weakSelf) strongRef = weakSelf;
+                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                        [strongRef.delegate processRecognized:@"请将摄像头正对您的脸部" action:0];
+                });
+                break;
+            }
+            arrayFaceInfo = [NSMutableArray arrayWithCapacity:asfMultiFaceInfo.faceNum];
+            for (int i = 0; i < asfMultiFaceInfo.faceNum; i++) {
                 ASFVideoFaceInfo *faceInfo = [[ASFVideoFaceInfo alloc] init];
-                faceInfo.faceRect = multiFaceInfo.faceRect[face];
+                faceInfo.faceRect = asfMultiFaceInfo.faceRect[i];
                 [arrayFaceInfo addObject:faceInfo];
             }
-            
-            NSTimeInterval begin = [[NSDate date] timeIntervalSince1970];
+            if (asfMultiFaceInfo.faceNum > 1) {
+                //检测人脸数量大于1个
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    __strong __typeof(weakSelf) strongRef = weakSelf;
+                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                        [strongRef.delegate processRecognized:@"不允许出现多张人脸" action:0];
+                });
+                break;
+            }
+            if (![self isFaceInCenter:asfMultiFaceInfo.faceRect[0]]) {
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    __strong __typeof(weakSelf) strongRef = weakSelf;
+                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                        [strongRef.delegate processRecognized:@"请将脸部置于中间位置，不要偏移" action:0];
+                });
+                break;
+            }
             mr = [self.arcsoftFace processWithWidth:cameraData->i32Width
                                              height:cameraData->i32Height
                                                data:cameraData->ppu8Plane[0]
                                              format:cameraData->u32PixelArrayFormat
-                                            faceRes:&multiFaceInfo
-                                               mask:ASF_FACE3DANGLE];
-            NSTimeInterval cost = [[NSDate date] timeIntervalSince1970] - begin;
-            NSLog(@"processTime=%dms", (int)(cost * 1000));
+                                            faceRes:&asfMultiFaceInfo
+                                               mask:ASF_FACE3DANGLE | ASF_LIVENESS];
             if(ASF_MOK != mr) {
-                NSLog(@"process失败：%ld", mr);
+                NSLog(@"人脸特征检测失败：%ld", mr);
                 break;
             }
             ASF_Face3DAngle face3DAngle = {0};
-            if(ASF_MOK != [self.arcsoftFace getFace3DAngle:&face3DAngle] || face3DAngle.num != multiFaceInfo.faceNum)
+            if(ASF_MOK != [self.arcsoftFace getFace3DAngle:&face3DAngle]){
                 break;
+            }
             ASFFace3DAngle *face3DAngleInfo = [[ASFFace3DAngle alloc] init];
             face3DAngleInfo.yawAngle = face3DAngle.yaw[0];
             face3DAngleInfo.pitchAngle = face3DAngle.pitch[0];
             face3DAngleInfo.rollAngle = face3DAngle.roll[0];
-            BOOL isYaw = (face3DAngleInfo.yawAngle >= -10.00f && face3DAngleInfo.yawAngle <= 10.00f);
-            BOOL isPit = (face3DAngleInfo.pitchAngle >= -10.00f && face3DAngleInfo.pitchAngle <= 10.00f);
+            BOOL isYaw = (face3DAngleInfo.yawAngle >= -20.00f && face3DAngleInfo.yawAngle <= 20.00f);
+            BOOL isPitch = (face3DAngleInfo.pitchAngle >= -10.00f && face3DAngleInfo.pitchAngle <= 10.00f);
             BOOL isRoll = (face3DAngleInfo.rollAngle >= -10.00f && face3DAngleInfo.rollAngle <= 10.00f);
-            if (!(isYaw && isPit && isRoll)) {
+            if (!(isYaw && isPitch && isRoll)) {
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                        [self.delegate processRecognized:@"请将脸部正对摄像头,不要偏斜" WithType:0];
+                    __strong __typeof(weakSelf) strongRef = weakSelf;
+                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                        [strongRef.delegate processRecognized:@"请调整人脸角度,不要偏斜" action:0];
                 });
-           
                 break;
             }
+            ASF_FaceLivenessScore faceLiveness = {0};
+            if (ASF_MOK != [self.arcsoftFace getLiveness:&faceLiveness]) {
+                break;
+            }
+            if(faceLiveness.scoreArray[0] != 1){
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    __strong __typeof(weakSelf) strongRef = weakSelf;
+                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                        [strongRef.delegate processRecognized:@"请眨一眨您的眼睛" action:0];
+                });
+                break;
+            }
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                __strong __typeof(weakSelf) strongRef = weakSelf;
+                if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                    [strongRef.delegate processRecognized:@"保持人脸在取景框中等待识别完成" action:0];
+            });
             detectFace = YES;
-            singleFaceInfo.rcFace = multiFaceInfo.faceRect[0];
-            singleFaceInfo.orient = multiFaceInfo.faceOrient[0];
+            singleFaceInfo.rcFace = asfMultiFaceInfo.faceRect[0];
+            singleFaceInfo.orient = asfMultiFaceInfo.faceOrient[0];
         } while (NO);
         dispatch_semaphore_signal(_processSemaphore);
-        if(0 == dispatch_semaphore_wait(_processFRSemaphore, 3))
-        {
+        if(0 == dispatch_semaphore_wait(_processFRSemaphore, 3)){
             __block ASF_CAMERA_INPUT_DATA offscreenProcess = [self copyCameraDataForProcessFR:cameraData];
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
-                if(!weakSelf.frModelVersionChecked)
-                {
-                    weakSelf.frModelVersionChecked = YES;
+                __strong __typeof(weakSelf) strongRef = weakSelf;
+                if(!strongRef.frModelVersionChecked){
+                    strongRef.frModelVersionChecked = YES;
                 }
-                if(detectFace)
-                {
+                if(detectFace){
                     ASF_FaceFeature faceFeature = {0};
-                    NSTimeInterval begin = [[NSDate date] timeIntervalSince1970];
                     MRESULT mr = [self.arcsoftFace extractFaceFeatureWithWidth:offscreenProcess->i32Width
                                                                         height:offscreenProcess->i32Height
                                                                           data:offscreenProcess->ppu8Plane[0]
                                                                         format:offscreenProcess->u32PixelArrayFormat
                                                                       faceInfo:&singleFaceInfo
                                                                        feature:&faceFeature];
-                    NSTimeInterval cost = [[NSDate date] timeIntervalSince1970] - begin;
-                    NSLog(@"FRTime=%dms", (int)(cost * 1000));
-                    NSLog(@"-----------featureSize---------------%d", faceFeature.featureSize);
-                    float leftInfo = singleFaceInfo.rcFace.left;
-                    float topInfo = singleFaceInfo.rcFace.top;
-                    float rightInfo = singleFaceInfo.rcFace.right;
-                    float bottomInfo = singleFaceInfo.rcFace.bottom;
-                    NSLog(@"----------leftInfo------------- %f", leftInfo);
-                    NSLog(@"----------topInfo----------- %f", topInfo);
-                    NSLog(@"----------rightInfo------------- %f", rightInfo);
-                    NSLog(@"----------bottomInfo----------- %f", bottomInfo);
-                    BOOL isLeft = (leftInfo >= 60&&leftInfo <= 140);
-                    BOOL isTop = (topInfo >= 150&&topInfo <= 230);
-                    if (!(isTop&&isLeft)) {
-                        dispatch_sync(dispatch_get_main_queue(), ^{
-                            if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                                [self.delegate processRecognized:@"请将脸部置于中间位置，不要偏移" WithType:0];
-                        });
-                    }else{
-                        dispatch_sync(dispatch_get_main_queue(), ^{
-                            if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                                [self.delegate processRecognized:@"检测成功" WithType:0];
-                        });
-                      
-                        if(mr == ASF_MOK)
-                    {
-                        if(type==0){
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                            [strongRef.delegate processRecognized:@"检测成功" action:0];
+                    });
+                    if(mr == ASF_MOK){
+                        if(action == 0){
                             NSData *imageData = [NSData dataWithBytes:faceFeature.feature length:faceFeature.featureSize];
                             NSString *base64Str = [imageData base64EncodedStringWithOptions:NSDataBase64DecodingIgnoreUnknownCharacters];
-                            NSString *imagePath = [NSString stringWithFormat:@"file://%@", [Utility getImagePath:imageInfo]];
+                            NSString *imagePath = nil;
+                            if (genImageFile) {
+                                imagePath = [NSString stringWithFormat:@"file://%@", [Utility getImagePath:imageInfo]];
+                            }
                             //添加 字典，将label的值通过key值设置传递
                             NSDictionary *dict =[[NSDictionary alloc]initWithObjectsAndKeys:base64Str,@"feature",imagePath,@"image",nil];
                             //创建通知
-                            NSNotification *notification =[NSNotification notificationWithName:@"backFaceInfo" object:nil userInfo:dict];
+                            NSNotification *notification =[NSNotification notificationWithName:@"onFaceExtracted" object:nil userInfo:dict];
                             //通过通知中心发送通知
                             [[NSNotificationCenter defaultCenter] postNotification:notification];
                             dispatch_sync(dispatch_get_main_queue(), ^{
-                                if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                                    [self.delegate processRecognized:@"人脸特征提取成功" WithType:1];
+                                if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                                    [strongRef.delegate processRecognized:@"人脸特征提取成功" action:1];
                             });
-                        }else if (type==1){
+                        }else if (action == 1){
                             ASF_FaceFeature refFaceFeature = {0};
-                            MFloat fConfidenceLevel =  0.0;
-                            refFaceFeature.feature = (MByte*)[imageData bytes];
-                            refFaceFeature.featureSize = (MInt32)[imageData length];
-                            MRESULT mr = [self.arcsoftFace compareFaceWithFeature:&faceFeature
+                            MFloat similar = 0.0f;
+                            refFaceFeature.feature = (MByte*)[srcFeature bytes];
+                            refFaceFeature.featureSize = (MInt32)[srcFeature length];
+                            MRESULT mr = [strongRef.arcsoftFace compareFaceWithFeature:&faceFeature
                                                                          feature2:&refFaceFeature
-                                                                  confidenceLevel:&fConfidenceLevel];
-                            if (mr == ASF_MOK && fConfidenceLevel >= [maxScore floatValue]) {
-                                NSString *similar = [NSString stringWithFormat:@"%.lf", (fConfidenceLevel*100)];
-                                NSDictionary *dict =[[NSDictionary alloc]initWithObjectsAndKeys:similar,@"similar",nil];
+                                                                  confidenceLevel:&similar];
+                            if (mr == ASF_MOK && similar >= similarThreshold) {
+                                NSData *imageData = [NSData dataWithBytes:faceFeature.feature length:faceFeature.featureSize];
+                                NSString *base64Str = [imageData base64EncodedStringWithOptions:NSDataBase64DecodingIgnoreUnknownCharacters];
+                                NSDictionary *dict =[[NSDictionary alloc]initWithObjectsAndKeys:[NSNumber numberWithFloat:similar], @"similar",base64Str, @"feature", nil];
                                 //创建通知
-                                NSNotification *notification =[NSNotification notificationWithName:@"backFaceSuccess" object:nil userInfo:dict];
+                                NSNotification *notification =[NSNotification notificationWithName:@"onFaceRecognized" object:nil userInfo:dict];
                                 //通过通知中心发送通知
                                 [[NSNotificationCenter defaultCenter] postNotification:notification];
                                 dispatch_sync(dispatch_get_main_queue(), ^{
-                                    if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                                        [self.delegate processRecognized:@"人脸对比成功" WithType:1];
+                                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                                        [strongRef.delegate processRecognized:@"人脸对比成功" action:1];
                                 });
                             }else{
                                 dispatch_sync(dispatch_get_main_queue(), ^{
-                                    if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                                        [self.delegate processRecognized:@"人脸对比失败" WithType:0];
+                                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                                        [strongRef.delegate processRecognized:@"人脸对比失败" action:0];
                                 });
                             }
+                        }else{
+                            dispatch_sync(dispatch_get_main_queue(), ^{
+                                if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                                    [strongRef.delegate processRecognized:@"人脸特征提取失败" action:0];
+                            });
                         }
-                    }else{
-                        dispatch_sync(dispatch_get_main_queue(), ^{
-                            if(self.delegate && [self.delegate respondsToSelector:@selector(processRecognized:WithType:)])
-                                [self.delegate processRecognized:@"人脸特征提取失败" WithType:0];
-                        });
-                    }
                   }
                 }
-                dispatch_semaphore_signal(_processFRSemaphore);
+                dispatch_semaphore_signal(self->_processFRSemaphore);
             });
         }
     }
@@ -298,6 +301,25 @@
                pOffscreenIn->i32Height * pOffscreenIn->pi32Pitch[1] / 2);
     }
     return _cameraDataForProcessFR;
+}
+
+- (BOOL) isFaceInCenter:(MRECT)faceRect{
+    CGRect frameFaceRect = {0};
+    CGRect frameGLView = self.glViewFrame;
+    frameFaceRect.size.width = CGRectGetWidth(frameGLView)*(faceRect.right-faceRect.left)/480;
+    frameFaceRect.size.height = CGRectGetHeight(frameGLView)*(faceRect.bottom-faceRect.top)/640;
+    frameFaceRect.origin.x = CGRectGetWidth(frameGLView)*faceRect.left / 480;
+    frameFaceRect.origin.y = CGRectGetHeight(frameGLView)*faceRect.top / 640;
+    int adjustedRectCenterX = frameFaceRect.origin.x + (frameFaceRect.size.width / 2);
+    int adjustedRectCenterY = frameFaceRect.origin.y + (frameFaceRect.size.height / 2);
+    int viewCenterX = frameGLView.size.width / 2;
+    int viewCenterY = frameGLView.size.height / 2;
+    NSLog(@"parent center = (%d, %d)", viewCenterX, viewCenterY);
+    NSLog(@"rect center = (%d, %d)", adjustedRectCenterX, adjustedRectCenterY);
+    int absXGap = abs(viewCenterX - adjustedRectCenterX);
+    int absYGap = abs(viewCenterY - adjustedRectCenterY);
+    NSLog(@"abs (%d, %d)", absXGap, absYGap);
+    return absXGap <= 20 && absYGap <= 20;
 }
 
 @end

@@ -8,7 +8,7 @@
 @class ASFRPerson;
 @protocol ASFVideoProcessorDelegate <NSObject>
 
-- (void)processRecognized:(NSString*)errorStr WithType:(NSInteger)type ;
+- (void)processRecognized:(NSString*)tip action:(NSInteger)action ;
 
 @end
 
@@ -31,8 +31,8 @@
 
 @property(nonatomic, assign) BOOL detectFaceUseFD;
 @property(nonatomic, weak) id<ASFVideoProcessorDelegate> delegate;
-
+@property(nonatomic, assign)CGRect glViewFrame;
 - (void)initProcessor;
 - (void)uninitProcessor;
-- (NSArray*)process:(ASF_CAMERA_DATA*)cameraData WithDataInfo:(NSData *)imageData WithMaxScore:(NSString *)maxScore WithType:(NSInteger)type WithImageInfo:(UIImage *)imageInfo;
+- (NSArray*)process:(ASF_CAMERA_DATA*)cameraData srcFeature:(NSData *)srcFeature genImageFile:(BOOL)genImageFile similarThreshold:(float)similarThreshold action:(NSInteger)type imageInfo:(UIImage *)imageInfo;
 @end
