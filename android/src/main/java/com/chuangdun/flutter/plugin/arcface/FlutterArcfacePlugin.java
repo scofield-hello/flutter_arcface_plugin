@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -25,8 +27,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * @author Nickey
@@ -39,6 +39,7 @@ public class FlutterArcfacePlugin
   private static final int ACTION_REQUEST_EXTRACT = 0x002;
   private static final int ACTION_REQUEST_RECOGNIZE = 0x003;
 
+  private static final String METHOD_IS_SUPPORT = "isSupport";
   private static final String METHOD_ACTIVE = "active";
   private static final String METHOD_EXTRACT = "extract";
   private static final String METHOD_RECOGNIZE = "recognize";
@@ -74,6 +75,10 @@ public class FlutterArcfacePlugin
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
+    if (call.method.equals(METHOD_IS_SUPPORT)){
+      result.success(VERSION.SDK_INT >= VERSION_CODES.KITKAT && VERSION.SDK_INT <= VERSION_CODES.Q);
+      return;
+    }
     if (!checkPermissions()) {
       ActivityCompat.requestPermissions(activity, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
       result.error("PERMISSION_DENIED.", "请在授予应用必要的权限后重试.", null);

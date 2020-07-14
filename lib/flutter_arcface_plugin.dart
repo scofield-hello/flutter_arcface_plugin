@@ -142,49 +142,49 @@ class ArcFaceErrors {
   };
 
   static String errorMsg(int error) {
-  if (Platform.isAndroid) {
-  try {
-  return _androidErrors[error];
-  } catch (e) {
-  return _androidErrors[1];
-  }
-  } else if (Platform.isIOS) {
-  try {
-  return _iOSErrors[error];
-  } catch (e) {
-  return _iOSErrors[1];
-  }
-  } else {
-  throw UnimplementedError("不支持的系统类型.");
-  }
+    if (Platform.isAndroid) {
+      try {
+        return _androidErrors[error];
+      } catch (e) {
+        return _androidErrors[1];
+      }
+    } else if (Platform.isIOS) {
+      try {
+        return _iOSErrors[error];
+      } catch (e) {
+        return _iOSErrors[1];
+      }
+    } else {
+      throw UnimplementedError("不支持的系统类型.");
+    }
   }
 
   static bool isActiveOk(int error) {
-  if (Platform.isAndroid) {
-  return error == 0 || error == 90114;
-  } else if (Platform.isIOS) {
-  return error == 200 || error == 90114;
-  } else {
-  throw UnimplementedError("不支持的系统类型.");
-  }
+    if (Platform.isAndroid) {
+      return error == 0 || error == 90114;
+    } else if (Platform.isIOS) {
+      return error == 200 || error == 90114;
+    } else {
+      throw UnimplementedError("不支持的系统类型.");
+    }
   }
 
   static bool isOperationOk(int error) {
-  if (Platform.isAndroid) {
-  return error == 0;
-  } else if (Platform.isIOS) {
-  return error == 200;
-  } else {
-  throw UnimplementedError("不支持的系统类型.");
-  }
+    if (Platform.isAndroid) {
+      return error == 0;
+    } else if (Platform.isIOS) {
+      return error == 200;
+    } else {
+      throw UnimplementedError("不支持的系统类型.");
+    }
   }
 }
 
-class FeatureResult{
+class FeatureResult {
   final String feature;
   final String image;
   const FeatureResult(this.feature, this.image);
-  static fromJson(Map<dynamic, dynamic> json){
+  static fromJson(Map<dynamic, dynamic> json) {
     return FeatureResult(json['feature'], json['image']);
   }
 
@@ -193,11 +193,11 @@ class FeatureResult{
   }
 }
 
-class CompareResult{
+class CompareResult {
   final String feature;
   final double similar;
   const CompareResult(this.feature, this.similar);
-  static fromJson(Map<dynamic, dynamic> json){
+  static fromJson(Map<dynamic, dynamic> json) {
     return CompareResult(json['feature'], json['similar']);
   }
 
@@ -208,6 +208,13 @@ class CompareResult{
 
 class FlutterArcfacePlugin {
   static const MethodChannel _channel = const MethodChannel('flutter_arcface_plugin');
+
+  ///判断设备是否支持人脸识别.
+  ///返回[bool] true:支持; false:不支持
+  static Future<bool> isSupport() async {
+    final bool isSupport = await _channel.invokeMethod('isSupport');
+    return isSupport;
+  }
 
   ///激活SDK.
   ///[ak]: APP KEY
@@ -220,7 +227,8 @@ class FlutterArcfacePlugin {
   }
 
   ///提取人脸特征.
-  static Future<FeatureResult> extract({bool useBackCamera = false, bool genImageFile = false}) async {
+  static Future<FeatureResult> extract(
+      {bool useBackCamera = false, bool genImageFile = false}) async {
     assert(useBackCamera != null);
     assert(genImageFile != null);
     dynamic result = await _channel
