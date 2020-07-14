@@ -19,31 +19,33 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     _result = result;
-  if ([@"active" isEqualToString:call.method]) {
+    if ([@"isSupport" isEqualToString:call.method]){
+      [self isSupport];
+    } else if ([@"active" isEqualToString:call.method]) {
       NSString *ak = [call.arguments objectForKey:@"ak"];
       NSString *sk = [call.arguments objectForKey:@"sk"];
       [self activeEngineWithAK:ak sk:sk];
-  } else if ([@"recognize" isEqualToString:call.method]) {
-      
-      //_arcfacePickerController.maxScore = [NSString stringWithFormat:@"%@", [call.arguments objectForKey:@"similar_threshold"]];
+    } else if ([@"recognize" isEqualToString:call.method]) {
       float similarThreshold = ((NSNumber*)[call.arguments objectForKey:@"similarThreshold"]).floatValue;
       NSData *srcFeature = [self dencode:[call.arguments objectForKey:@"srcFeature"]];
-      _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc] initWithAction:1
-                                                                                   useBackCamera:NO
-                                                                                    genImageFile:NO
-                                                                                      srcFeature:srcFeature
-                                                                                similarThreshold:similarThreshold];
+      _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc]
+                                  initWithAction:1
+                                   useBackCamera:NO
+                                    genImageFile:NO
+                                      srcFeature:srcFeature
+                                similarThreshold:similarThreshold];
       _arcfacePickerController.modalPresentationStyle = UIModalPresentationFullScreen;
       [_viewController presentViewController:_arcfacePickerController animated:YES completion:nil];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onFaceRecognized:)name:@"onFaceRecognized" object:nil];
   } else if ([@"extract" isEqualToString:call.method]) {
       BOOL useBackCamera = ((NSNumber*)[call.arguments objectForKey:@"useBackCamera"]).boolValue;
       BOOL genImageFile = ((NSNumber*)[call.arguments objectForKey:@"genImageFile"]).boolValue;
-      _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc] initWithAction:0
-                                                                                   useBackCamera:useBackCamera
-                                                                                    genImageFile:genImageFile
-                                                                                      srcFeature:nil
-                                                                                similarThreshold:0.0f];
+      _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc]
+                                  initWithAction:0
+                                   useBackCamera:useBackCamera
+                                    genImageFile:genImageFile
+                                      srcFeature:nil
+                                similarThreshold:0.0f];
       _arcfacePickerController.modalPresentationStyle = UIModalPresentationFullScreen;
       [_viewController presentViewController:_arcfacePickerController animated:YES completion:nil];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onFaceExtracted:)name:@"onFaceExtracted" object:nil];
@@ -62,13 +64,16 @@
         NSLog(@"虹软人脸识别引擎激活: %ld", mr);
         NSLog(@"虹软人脸识别引擎版本: %@", [engine getVersion]);
         strongRef->_result([NSNumber numberWithLong:mr]);
-       
     });
-//    ArcSoftFaceEngine *engine = [[ArcSoftFaceEngine alloc] init];
-//    MRESULT mr = [engine activeWithAppId:ak SDKKey:sk];
-//    NSLog(@"虹软人脸识别引擎激活: %ld", mr);
-//    NSLog(@"虹软人脸识别引擎版本: %@", [engine getVersion]);
-//    return (int)mr;
+}
+
+#pragma mark -判断设备是否支持人脸识别.
+-(void)isSupport{
+    //判断是否大于8小于14;
+    float systemVersion = [[UIDevice currentDevice].systemVersion floatValue];
+    NSLog(@"iOS版本:%f", systemVersion);
+    BOOL isSupport = systemVersion >= 8 && systemVersion < 14;
+    _result([NSNumber numberWithBool:isSupport]);
 }
 
 #pragma mark -初始化
