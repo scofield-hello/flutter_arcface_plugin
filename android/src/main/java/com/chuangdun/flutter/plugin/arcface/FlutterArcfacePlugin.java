@@ -91,8 +91,6 @@ public class FlutterArcfacePlugin
     if (call.method.equals(METHOD_ACTIVE)) {
       String ak = call.argument("ak");
       String sk = call.argument("sk");
-      Log.d(TAG, "onMethodCall: ak: " + ak);
-      Log.d(TAG, "onMethodCall: sk: " + sk);
       Future<Integer> future = activeEngine(ak, sk);
       try {
         int activeCode = future.get();
