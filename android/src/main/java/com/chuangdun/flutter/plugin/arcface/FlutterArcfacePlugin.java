@@ -9,7 +9,10 @@ import android.os.Build.VERSION_CODES;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
+import com.arcsoft.face.enums.DetectFaceOrientPriority;
+import com.arcsoft.face.enums.DetectMode;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -122,7 +125,21 @@ public class FlutterArcfacePlugin
         new Callable<Integer>() {
           @Override
           public Integer call() throws Exception {
-            return FaceEngine.activeOnline(activity, ak, sk);
+            int combinedMask =
+                FaceEngine.ASF_FACE_DETECT
+                    | FaceEngine.ASF_LIVENESS
+                    | FaceEngine.ASF_FACE_RECOGNITION
+                    | FaceEngine.ASF_FACE3DANGLE;
+            FaceEngine faceEngine = new FaceEngine();
+            int afCode = faceEngine
+                .init(activity, DetectMode.ASF_DETECT_MODE_VIDEO, DetectFaceOrientPriority.ASF_OP_270_ONLY,
+                    16, 20, combinedMask);
+            if (afCode == ErrorInfo.MOK){
+              faceEngine.unInit();
+              return ErrorInfo.MOK;
+            }else{
+              return FaceEngine.activeOnline(activity, ak, sk);
+            }
           }
         });
   }
