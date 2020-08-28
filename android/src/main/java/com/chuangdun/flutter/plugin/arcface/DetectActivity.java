@@ -556,7 +556,7 @@ public class DetectActivity extends AppCompatActivity
     afCode = faceEngine
         .init(this, DetectMode.ASF_DETECT_MODE_VIDEO, orientPriority,
             16, 20, combinedMask);
-    faceEngine.setLivenessParam(new LivenessParam(0.5f, 0.7f));
+    faceEngine.setLivenessParam(new LivenessParam(0.5f));
     VersionInfo versionInfo = new VersionInfo();
     FaceEngine.getVersion(versionInfo);
     Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
