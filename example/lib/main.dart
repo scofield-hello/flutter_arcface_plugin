@@ -25,8 +25,8 @@ class _MyAppState extends State<MyApp> {
     int activeCode;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      activeCode = await FlutterArcfacePlugin.active("GKgxanYQak7mHzUZcMxdPKnx1z3fhAkyTemnGu569dHL",
-          "Hzmu3U6H5NyDRDNEUxD8W4ty1Lsh4DWuErSeNn3ZDixA");
+      activeCode = await FlutterArcfacePlugin.active("appid",
+          "appkey");
     } on PlatformException {
       activeCode = 10000000;
     }
