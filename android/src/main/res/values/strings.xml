@@ -25,6 +25,7 @@
     <string name="compare_face_success">人脸比对成功</string>
     <string name="compare_face_failed">人脸比对失败, 正在重试</string>
     <string name="title_face_rec">人脸识别</string>
+    <string name="tip_camera">正对相机</string>
     <string name="tip_phone">正对手机</string>
     <string name="tip_light">光线充足</string>
     <string name="tip_cover">脸无遮挡</string>
