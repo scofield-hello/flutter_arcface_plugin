@@ -485,24 +485,8 @@ public class DetectActivity extends AppCompatActivity
           return;
         }
         code = faceEngine.process(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21,
-            faceInfoList, FaceEngine.ASF_FACE3DANGLE |FaceEngine.ASF_LIVENESS);
+            faceInfoList, FaceEngine.ASF_LIVENESS);
         if (code != ErrorInfo.MOK){
-          return;
-        }
-        List<Face3DAngle> angles = new ArrayList<>(1);
-        code = faceEngine.getFace3DAngle(angles);
-        if (code != ErrorInfo.MOK  || angles.isEmpty()){
-          return;
-        }
-        Face3DAngle angle = angles.get(0);
-//        Log.d(TAG, "onPreview: angle pitch:"+ angle.getPitch());
-//        Log.d(TAG, "onPreview: angle roll:"+ angle.getRoll());
-//        Log.d(TAG, "onPreview: angle yaw:"+ angle.getYaw());
-        boolean rightPitch = angle.getPitch() >= -10.0f && angle.getPitch() <= 10.0f;
-        boolean rightRoll = angle.getRoll() >= -110.0f && angle.getRoll() <= -70.0f;
-        boolean rightYaw = angle.getYaw() >= -20.0f && angle.getYaw() <= 20.0f;
-        if (angle.getStatus() != 0 || !rightPitch || !rightRoll || !rightYaw){
-          tipView.setText(R.string.adjust_face_angle);
           return;
         }
         List<LivenessInfo> livenessInfoList = new ArrayList<LivenessInfo>();
@@ -546,12 +530,11 @@ public class DetectActivity extends AppCompatActivity
   private void initEngine() {
     DetectFaceOrientPriority orientPriority =
         useBackCamera ? DetectFaceOrientPriority.ASF_OP_90_ONLY
-            : DetectFaceOrientPriority.ASF_OP_270_ONLY;
+            : DetectFaceOrientPriority.ASF_OP_0_ONLY;
     int combinedMask =
         FaceEngine.ASF_FACE_DETECT
             | FaceEngine.ASF_LIVENESS
-            | FaceEngine.ASF_FACE_RECOGNITION
-            | FaceEngine.ASF_FACE3DANGLE;
+            | FaceEngine.ASF_FACE_RECOGNITION;
     faceEngine = new FaceEngine();
     afCode = faceEngine
         .init(this, DetectMode.ASF_DETECT_MODE_VIDEO, orientPriority,

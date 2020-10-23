@@ -61,8 +61,8 @@
 
   <FrameLayout
     android:id="@+id/frameLayout"
-    android:layout_width="232dp"
-    android:layout_height="232dp"
+    android:layout_width="320dp"
+    android:layout_height="320dp"
     android:layout_marginTop="24dp"
     android:layout_marginBottom="8dp"
     android:layout_marginStart="8dp"
@@ -77,7 +77,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
 
-    <com.chuangdun.flutter.plugin.arcface.widget.FaceRectView
+    <com.cdkj.cordova.arcface.widget.FaceRectView
       android:id="@+id/face_rect_view"
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
@@ -119,7 +119,7 @@
           android:layout_width="match_parent"
           android:layout_height="24dp"
           android:scaleType="fitCenter"
-          android:contentDescription="@string/tip_phone"
+          android:contentDescription="@string/tip_camera"
           android:src="@drawable/ic_phone">
         </ImageView>
         <TextView
@@ -129,7 +129,7 @@
           android:gravity="center"
           android:textSize="12sp"
           android:textColor="#333333"
-          android:text="@string/tip_phone">
+          android:text="@string/tip_camera">
         </TextView>
       </LinearLayout>
       <LinearLayout
