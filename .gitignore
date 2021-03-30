@@ -3,5 +3,8 @@
 
 .packages
 .pub/
-
+.idea/
 build/
+.metadata
+.packages
+android/.idea/

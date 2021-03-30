@@ -315,7 +315,7 @@ public class CameraHelper implements Camera.PreviewCallback {
 
   @Override
   public void onPreviewFrame(byte[] nv21, Camera camera) {
-    if (cameraListener != null) {
+    if (cameraListener != null && camera != null) {
       cameraListener.onPreview(nv21, camera);
     }
   }
