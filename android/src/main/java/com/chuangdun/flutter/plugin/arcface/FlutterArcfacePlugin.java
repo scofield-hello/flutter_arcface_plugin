@@ -20,7 +20,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -78,7 +77,7 @@ public class FlutterArcfacePlugin
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals(METHOD_IS_SUPPORT)){
+    if (call.method.equals(METHOD_IS_SUPPORT)) {
       result.success(VERSION.SDK_INT >= VERSION_CODES.KITKAT && VERSION.SDK_INT <= VERSION_CODES.Q);
       return;
     }
@@ -130,12 +129,13 @@ public class FlutterArcfacePlugin
                     | FaceEngine.ASF_FACE3DANGLE;
             FaceEngine faceEngine = new FaceEngine();
             int afCode = faceEngine
-                .init(activity, DetectMode.ASF_DETECT_MODE_VIDEO, DetectFaceOrientPriority.ASF_OP_270_ONLY,
+                .init(activity, DetectMode.ASF_DETECT_MODE_VIDEO,
+                    DetectFaceOrientPriority.ASF_OP_270_ONLY,
                     16, 20, combinedMask);
-            if (afCode == ErrorInfo.MOK){
+            if (afCode == ErrorInfo.MOK) {
               faceEngine.unInit();
               return ErrorInfo.MOK;
-            }else{
+            } else {
               return FaceEngine.activeOnline(activity, ak, sk);
             }
           }
@@ -154,49 +154,53 @@ public class FlutterArcfacePlugin
 
   @Override
   public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == ACTION_REQUEST_EXTRACT) {
-      switch (resultCode) {
-        case Activity.RESULT_FIRST_USER:
-          String error = data.getStringExtra("error");
-          mResultSetter.error("PLUGIN_ERROR", error, null);
-          return true;
-        case Activity.RESULT_CANCELED:
-          mResultSetter.error("PLUGIN_ERROR", "用户已取消操作.", null);
-          return true;
-        case Activity.RESULT_OK:
-          String feature = data.getStringExtra("feature");
-          String imageUri = data.getStringExtra("image");
-          Map<String, String> featureResult = new HashMap<>(2);
-          featureResult.put("feature", feature);
-          featureResult.put("image", imageUri);
-          mResultSetter.success(featureResult);
-          return true;
-        default:
-          mResultSetter.error("PLUGIN_ERROR", "无效的错误码.", null);
-          return true;
+    try {
+      if (requestCode == ACTION_REQUEST_EXTRACT) {
+        switch (resultCode) {
+          case Activity.RESULT_FIRST_USER:
+            String error = data.getStringExtra("error");
+            mResultSetter.error("PLUGIN_ERROR", error, null);
+            return true;
+          case Activity.RESULT_CANCELED:
+            mResultSetter.error("PLUGIN_ERROR", "用户已取消操作.", null);
+            return true;
+          case Activity.RESULT_OK:
+            String feature = data.getStringExtra("feature");
+            String imageUri = data.getStringExtra("image");
+            Map<String, String> featureResult = new HashMap<>(2);
+            featureResult.put("feature", feature);
+            featureResult.put("image", imageUri);
+            mResultSetter.success(featureResult);
+            return true;
+          default:
+            mResultSetter.error("PLUGIN_ERROR", "无效的错误码.", null);
+            return true;
+        }
+      } else if (requestCode == ACTION_REQUEST_RECOGNIZE) {
+        switch (resultCode) {
+          case Activity.RESULT_FIRST_USER:
+            String error = data.getStringExtra("error");
+            mResultSetter.error("PLUGIN_ERROR", error, null);
+            return true;
+          case Activity.RESULT_CANCELED:
+            mResultSetter.error("PLUGIN_ERROR", "用户已取消操作.", null);
+            return true;
+          case Activity.RESULT_OK:
+            float similar = data.getFloatExtra("similar", 0.0f);
+            String feature = data.getStringExtra("feature");
+            Map<String, Object> compareResult = new HashMap<>(2);
+            compareResult.put("feature", feature);
+            compareResult.put("similar", similar);
+            mResultSetter.success(compareResult);
+            return true;
+          default:
+            mResultSetter.error("PLUGIN_ERROR", "无效的错误码.", null);
+            return true;
+        }
       }
-    } else if (requestCode == ACTION_REQUEST_RECOGNIZE) {
-      switch (resultCode) {
-        case Activity.RESULT_FIRST_USER:
-          String error = data.getStringExtra("error");
-          mResultSetter.error("PLUGIN_ERROR", error, null);
-          return true;
-        case Activity.RESULT_CANCELED:
-          mResultSetter.error("PLUGIN_ERROR", "用户已取消操作.", null);
-          return true;
-        case Activity.RESULT_OK:
-          float similar = data.getFloatExtra("similar", 0.0f);
-          String feature = data.getStringExtra("feature");
-          Map<String, Object> compareResult = new HashMap<>(2);
-          compareResult.put("feature", feature);
-          compareResult.put("similar", similar);
-          mResultSetter.success(compareResult);
-          return true;
-        default:
-          mResultSetter.error("PLUGIN_ERROR", "无效的错误码.", null);
-          return true;
-      }
+    } catch (Exception e) {
+      Log.e(TAG, "onActivityResult: ", e);
     }
-    return false;
+    return true;
   }
 }
