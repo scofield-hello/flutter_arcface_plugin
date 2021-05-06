@@ -78,7 +78,7 @@ public class FlutterArcfacePlugin
   @Override
   public void onMethodCall(MethodCall call, Result result) {
     if (call.method.equals(METHOD_IS_SUPPORT)) {
-      result.success(VERSION.SDK_INT >= VERSION_CODES.KITKAT && VERSION.SDK_INT <= VERSION_CODES.Q);
+      result.success(VERSION.SDK_INT >= VERSION_CODES.KITKAT && VERSION.SDK_INT <= VERSION_CODES.R);
       return;
     }
     if (!checkPermissions()) {
