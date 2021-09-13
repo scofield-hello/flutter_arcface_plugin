@@ -19,6 +19,8 @@ class ArcFaceErrors {
     11: "存贮空间不足",
     12: "组件不存在",
     13: "全局数据不存在",
+    14: "错误码14",
+    15: "错误码15",
     28673: "无效的AppId",
     28674: "无效的SDKkey",
     28675: "AppId和SDKKey不匹配",
@@ -35,19 +37,68 @@ class ArcFaceErrors {
     81923: "人脸特征检测格式错误",
     81924: "人脸特征检测参数错误",
     81925: "人脸特征检测结果置信度低",
+    81926: "人脸特征检测结果操作过期",
+    81927: "丢失人脸特征检测结果置信度低",
+    81928: "人脸特征检测没有人脸",
+    81929: "人脸特征检测人脸信息错误",
     86017: "Engine不支持的检测属性",
     86018: "需要检测的属性未初始化",
     86019: "待获取的属性未在process中处理过",
     86020: "PROCESS不支持的检测属性,例如FR,有自己独立的处理函数",
     86021: "无效的输入图像",
     86022: "无效的脸部信息",
-    90113: "文件读写权限被拒绝,请对应用授权后重试",
+    90113: "SDK激活失败，请打开读写权限",
     90114: "SDK已激活",
     90115: "SDK未激活",
+    90116: "detectFaceScaleVal不支持",
+    90117: "激活文件与SDK类型不匹配，请确认使用的SDK",
+    90118: "设备不匹配",
+    90119: "唯一标识不合法",
+    90120: "参数为空",
+    90122: "版本不支持",
+    90123: "签名错误",
+    90124: "激活信息保存异常",
+    90125: "激活信息保存异常",
+    90126: "颜色空间不支持",
+    90127: "图片宽高不支持，宽度需四字节对齐",
+    90128: "READ_PHONE_STATE权限被拒绝",
+    90129: "激活数据被破坏,请删除激活文件，重新进行激活",
+    90130: "服务端未知错误",
+    90131: "INTERNET权限被拒绝",
+    90132: "激活文件与SDK版本不匹配,请重新激活",
+    90133: "设备信息太少，不足以生成设备指纹",
+    90134: "客户端时间与服务器时间（即北京时间）前后相差在30分钟以上",
+    90135: "数据校验异常",
+    90136: "传入的APP_ID和AppKey与使用的SDK版本不一致",
+    90137: "短时间大量请求会被禁止请求,30分钟之后解封",
+    90138: "激活文件不存在",
+    90139: "当前设备时间不正确，请调整设备时间",
+    90140: "检测模型不支持，请查看对应接口说明，使用当前支持的检测模型",
     94209: "无法解析主机地址,请检查网络后重试",
     94210: "无法连接服务器,请检查网络后重试",
     94211: "网络连接超时,请检查网络后重试",
     94212: "网络未知错误,请检查网络后重试",
+    98305: "无法连接激活服务器,请检查网络后重试",
+    98306: "服务器系统错误",
+    98307: "请求参数错误",
+    98308: "ACTIVE_KEY与APP_ID、SDK_KEY不匹配",
+    98309: "ACTIVE_KEY已经被使用",
+    98310: "ACTIVE_KEY信息异常",
+    98311: "ACTIVE_KEY与APP_ID不匹配",
+    98312: "SDK与激活文件版本不匹配",
+    98313: "ACTIVE_KEY已过期",
+    102401: "离线授权文件不存在或无读写权限",
+    102402: "离线授权文件已损坏",
+    102403: "离线授权文件与SDK版本不匹配",
+    102404: "离线授权文件与SDK信息不匹配",
+    102405: "离线授权文件与设备指纹不匹配",
+    102406: "离线授权文件已过期",
+    102407: "离线授权文件不可用，本地原有激活文件可继续使用",
+    102408: "离线授权文件版本过低，请使用新版本激活助手重新进行离线激活",
+    151553: "人脸列表为空",
+    151554: "人脸不存在",
+    151555: "特征值长度不匹配",
+    151556: "相似度异常",
     131073: "激活文件不存在",
     131074: "包名不匹配",
     131075: "包签名不匹配",
@@ -83,7 +134,7 @@ class ArcFaceErrors {
 
   static final _iOSErrors = <int, String>{
     200: "成功",
-    1: "错误原因不明",
+    1: "通用错误类型",
     2: "无效的参数",
     3: "引擎不支持",
     4: "内存不足",
@@ -131,7 +182,8 @@ class ArcFaceErrors {
     94209: "无法解析主机地址,请检查网络后重试",
     94210: "无法连接服务器,请检查网络后重试",
     94211: "网络连接超时,请检查网络后重试",
-    94212: "网络未知错误,请检查网络后重试"
+    94212: "网络未知错误,请检查网络后重试",
+    196609: "非激活时段不可激活"
   };
 
   static String errorMsg(int error) {
@@ -139,13 +191,13 @@ class ArcFaceErrors {
       try {
         return _androidErrors[error];
       } catch (e) {
-        return "${_androidErrors[1]}:${error}";
+        return "${_androidErrors[1]}:$error";
       }
     } else if (Platform.isIOS) {
       try {
         return _iOSErrors[error];
       } catch (e) {
-        return "${_iOSErrors[1]}:${error}";
+        return "${_iOSErrors[1]}:$error";
       }
     } else {
       throw UnimplementedError("不支持的系统类型.");
@@ -200,7 +252,8 @@ class CompareResult {
 }
 
 class FlutterArcfacePlugin {
-  static const MethodChannel _channel = const MethodChannel('flutter_arcface_plugin');
+  static const MethodChannel _channel =
+      const MethodChannel('flutter_arcface_plugin');
 
   ///判断设备是否支持人脸识别.
   ///返回[bool] true:支持; false:不支持
@@ -215,28 +268,34 @@ class FlutterArcfacePlugin {
   static Future<int> active(String appId, String sdkKey) async {
     assert(appId != null && appId.isNotEmpty);
     assert(sdkKey != null && sdkKey.isNotEmpty);
-    final int activeCode = await _channel.invokeMethod('active', {'ak': appId, 'sk': sdkKey});
+    final int activeCode =
+        await _channel.invokeMethod('active', {'ak': appId, 'sk': sdkKey});
     return activeCode;
   }
 
   ///提取人脸特征.
-  static Future<FeatureResult> extract({bool useBackCamera = false, bool genImageFile = false}) async {
+  static Future<FeatureResult> extract(
+      {bool useBackCamera = false, bool genImageFile = false}) async {
     assert(useBackCamera != null);
     assert(genImageFile != null);
-    dynamic result =
-        await _channel.invokeMethod('extract', {'useBackCamera': useBackCamera, "genImageFile": genImageFile});
+    dynamic result = await _channel.invokeMethod('extract',
+        {'useBackCamera': useBackCamera, "genImageFile": genImageFile});
     return FeatureResult.fromJson(result);
   }
 
   ///人脸识别，返回相识度[0~1.0].
   ///[srcFeatureData] 经过BASE64编码后的源人脸特征.
   ///[similarThreshold] 相似度阀值.
-  static Future<CompareResult> recognize(String srcFeatureData, double similarThreshold,
+  static Future<CompareResult> recognize(
+      String srcFeatureData, double similarThreshold,
       {bool useBackCamera = false}) async {
     assert(srcFeatureData != null && srcFeatureData.isNotEmpty);
     assert(similarThreshold != null && similarThreshold > 0.0);
-    dynamic result = await _channel.invokeMethod('recognize',
-        {'srcFeature': srcFeatureData, 'useBackCamera': useBackCamera, 'similarThreshold': similarThreshold});
+    dynamic result = await _channel.invokeMethod('recognize', {
+      'srcFeature': srcFeatureData,
+      'useBackCamera': useBackCamera,
+      'similarThreshold': similarThreshold
+    });
     return CompareResult.fromJson(result);
   }
 }
