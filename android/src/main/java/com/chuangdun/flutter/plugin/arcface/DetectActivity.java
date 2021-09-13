@@ -138,9 +138,11 @@ public class DetectActivity extends AppCompatActivity
     return intent;
   }
 
-  public static Intent recognize(Context context, float similarThreshold, String srcFeatureData) {
+  public static Intent recognize(Context context, boolean useBackCamera,
+      float similarThreshold, String srcFeatureData) {
     Intent intent = new Intent(context, DetectActivity.class);
     intent.putExtra(EXTRA_ACTION, ACTION_RECOGNIZE_FACE);
+    intent.putExtra(EXTRA_USE_BACK_CAMERA, useBackCamera);
     intent.putExtra(EXTRA_SIMILAR_THRESHOLD, similarThreshold);
     intent.putExtra(EXTRA_SRC_FEATURE, srcFeatureData);
     return intent;

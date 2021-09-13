@@ -107,9 +107,11 @@ public class FlutterArcfacePlugin
       activity.startActivityForResult(intent, ACTION_REQUEST_EXTRACT);
     } else if (call.method.equals(METHOD_RECOGNIZE)) {
       String srcFeatureData = call.argument("srcFeature");
+      boolean useBackCamera = call.hasArgument("useBackCamera") ?
+          call.<Boolean>argument("useBackCamera") : false;
       double similarThreshold = call.<Double>argument("similarThreshold");
       float floatSimilarThreshold = Float.parseFloat(Double.toString(similarThreshold));
-      Intent intent = DetectActivity.recognize(activity, floatSimilarThreshold, srcFeatureData);
+      Intent intent = DetectActivity.recognize(activity, useBackCamera, floatSimilarThreshold, srcFeatureData);
       activity.startActivityForResult(intent, ACTION_REQUEST_RECOGNIZE);
     } else {
       result.notImplemented();
