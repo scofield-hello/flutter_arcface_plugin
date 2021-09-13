@@ -27,10 +27,11 @@
       [self activeEngineWithAK:ak sk:sk];
     } else if ([@"recognize" isEqualToString:call.method]) {
       float similarThreshold = ((NSNumber*)[call.arguments objectForKey:@"similarThreshold"]).floatValue;
+      BOOL useBackCamera = ((NSNumber*)[call.arguments objectForKey:@"useBackCamera"]).boolValue;
       NSData *srcFeature = [self dencode:[call.arguments objectForKey:@"srcFeature"]];
       _arcfacePickerController = [[FlutterArcfaceRecognitionViewController alloc]
                                   initWithAction:1
-                                   useBackCamera:NO
+                                   useBackCamera:useBackCamera
                                     genImageFile:NO
                                       srcFeature:srcFeature
                                 similarThreshold:similarThreshold];
