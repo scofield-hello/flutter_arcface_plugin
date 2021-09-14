@@ -462,7 +462,7 @@ public class DetectActivity extends AppCompatActivity
         if (code != ErrorInfo.MOK) {
           return;
         }
-        if (useBackCamera) {
+        if (!useBackCamera) {
           List<Face3DAngle> angles = new ArrayList<>(1);
           code = faceEngine.getFace3DAngle(angles);
           if (code != ErrorInfo.MOK || angles.isEmpty()) {
