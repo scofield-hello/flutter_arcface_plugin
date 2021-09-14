@@ -187,6 +187,7 @@
     NSArray *arrayFaceInfo = [self.videoProcessor process:cameraData
                                                 srcFeature:_srcFeature
                                                 genImageFile:_genImageFile
+                                                useBackCamera:_useBackCamera
                                          similarThreshold:_similarThreshold
                                                    action:_action
                                                 imageInfo:sizeImage];

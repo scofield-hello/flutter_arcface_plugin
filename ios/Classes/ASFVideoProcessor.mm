@@ -92,6 +92,7 @@
 - (NSArray*)process:(ASF_CAMERA_DATA*)cameraData
          srcFeature:(NSData *)srcFeature
        genImageFile:(BOOL)genImageFile
+      useBackCamera:(BOOL)useBackCamera
    similarThreshold:(float)similarThreshold
              action:(NSInteger)action
           imageInfo:(UIImage *)imageInfo{
@@ -152,24 +153,26 @@
                 NSLog(@"人脸特征检测失败：%ld", mr);
                 break;
             }
-            ASF_Face3DAngle face3DAngle = {0};
-            if(ASF_MOK != [self.arcsoftFace getFace3DAngle:&face3DAngle]){
-                break;
-            }
-            ASFFace3DAngle *face3DAngleInfo = [[ASFFace3DAngle alloc] init];
-            face3DAngleInfo.yawAngle = face3DAngle.yaw[0];
-            face3DAngleInfo.pitchAngle = face3DAngle.pitch[0];
-            face3DAngleInfo.rollAngle = face3DAngle.roll[0];
-            BOOL isYaw = (face3DAngleInfo.yawAngle >= -20.00f && face3DAngleInfo.yawAngle <= 20.00f);
-            BOOL isPitch = (face3DAngleInfo.pitchAngle >= -10.00f && face3DAngleInfo.pitchAngle <= 10.00f);
-            BOOL isRoll = (face3DAngleInfo.rollAngle >= -10.00f && face3DAngleInfo.rollAngle <= 10.00f);
-            if (!(isYaw && isPitch && isRoll)) {
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    __strong __typeof(weakSelf) strongRef = weakSelf;
-                    if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
-                        [strongRef.delegate processRecognized:@"请调整人脸角度,不要偏斜" action:0];
-                });
-                break;
+            if (!useBackCamera) {
+                ASF_Face3DAngle face3DAngle = {0};
+                if(ASF_MOK != [self.arcsoftFace getFace3DAngle:&face3DAngle]){
+                    break;
+                }
+                ASFFace3DAngle *face3DAngleInfo = [[ASFFace3DAngle alloc] init];
+                face3DAngleInfo.yawAngle = face3DAngle.yaw[0];
+                face3DAngleInfo.pitchAngle = face3DAngle.pitch[0];
+                face3DAngleInfo.rollAngle = face3DAngle.roll[0];
+                BOOL isYaw = (face3DAngleInfo.yawAngle >= -20.00f && face3DAngleInfo.yawAngle <= 20.00f);
+                BOOL isPitch = (face3DAngleInfo.pitchAngle >= -10.00f && face3DAngleInfo.pitchAngle <= 10.00f);
+                BOOL isRoll = (face3DAngleInfo.rollAngle >= -10.00f && face3DAngleInfo.rollAngle <= 10.00f);
+                if (!(isYaw && isPitch && isRoll)) {
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        __strong __typeof(weakSelf) strongRef = weakSelf;
+                        if(strongRef.delegate && [strongRef.delegate respondsToSelector:@selector(processRecognized:action:)])
+                            [strongRef.delegate processRecognized:@"请调整人脸角度,不要偏斜" action:0];
+                    });
+                    break;
+                }
             }
             ASF_FaceLivenessScore faceLiveness = {0};
             if (ASF_MOK != [self.arcsoftFace getLiveness:&faceLiveness]) {

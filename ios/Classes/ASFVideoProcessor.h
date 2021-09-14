@@ -34,5 +34,5 @@
 @property(nonatomic, assign)CGRect glViewFrame;
 - (void)initProcessor;
 - (void)uninitProcessor;
-- (NSArray*)process:(ASF_CAMERA_DATA*)cameraData srcFeature:(NSData *)srcFeature genImageFile:(BOOL)genImageFile similarThreshold:(float)similarThreshold action:(NSInteger)type imageInfo:(UIImage *)imageInfo;
+- (NSArray*)process:(ASF_CAMERA_DATA*)cameraData srcFeature:(NSData *)srcFeature genImageFile:(BOOL)genImageFile useBackCamera:(BOOL)useBackCamera similarThreshold:(float)similarThreshold action:(NSInteger)type imageInfo:(UIImage *)imageInfo;
 @end
