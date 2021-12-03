@@ -23,6 +23,7 @@
  */
 #import <Foundation/Foundation.h>
 #import "ArcSoftFaceEngineDefine.h"
+#import "ArcSoftActiveInfo.h"
 
 @interface ArcSoftFaceEngine : NSObject
 
@@ -95,6 +96,13 @@
      * @return  成功返回版本信息，否则返回MNull
      */
     - (NSString*)getVersion;
+
+    /*!
+     * @brief               获取激活文件信息
+     * @param activeInfo         激活文件信息对象
+     * @return              成功返回ASF_MOK，否则返回失败code
+     */
+    - (MRESULT)getActiveFileInfo:(ArcSoftActiveInfo*)activeInfo;
 
 @end
 

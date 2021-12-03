@@ -4,9 +4,13 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Headers/ArcSoftActiveInfo.h</key>
+		<data>
+		U7E1MjRaNRUUUcuVvG51VavvqNw=
+		</data>
 		<key>Headers/ArcSoftFaceEngine.h</key>
 		<data>
-		B33JTnfQ0qLIizZqPaHETRhDUMY=
+		v1BBXcyDedTUKnrVzrxdVLV/lfo=
 		</data>
 		<key>Headers/ArcSoftFaceEngineDefine.h</key>
 		<data>
@@ -22,11 +26,11 @@
 		</data>
 		<key>Headers/merror.h</key>
 		<data>
-		P/kMfB5aI47OCtM2p7KszD51lXk=
+		cnC4mfQmTUtx7z4+bgjj6SU764Y=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		6UY+EI0XrQmO4tB2HvbTFNpeNwM=
+		3dS66fvv+h2KZPREJp7VSe3CKUk=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -35,15 +39,26 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/ArcSoftActiveInfo.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			U7E1MjRaNRUUUcuVvG51VavvqNw=
+			</data>
+			<key>hash2</key>
+			<data>
+			Ictoq4xfdzlHorTnfQnAJx29PD5zLuAs97d3XFNK/GM=
+			</data>
+		</dict>
 		<key>Headers/ArcSoftFaceEngine.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			B33JTnfQ0qLIizZqPaHETRhDUMY=
+			v1BBXcyDedTUKnrVzrxdVLV/lfo=
 			</data>
 			<key>hash2</key>
 			<data>
-			rkqc/0Btz6piqrXYWX9h1O6Z994ebfKqM+eer80OnBo=
+			dFui+LaMi05AlGwmtrc5QzhhcL5hqW721CUB9LNUSyU=
 			</data>
 		</dict>
 		<key>Headers/ArcSoftFaceEngineDefine.h</key>
@@ -83,11 +98,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			P/kMfB5aI47OCtM2p7KszD51lXk=
+			cnC4mfQmTUtx7z4+bgjj6SU764Y=
 			</data>
 			<key>hash2</key>
 			<data>
-			mo/yPrkuxvnaQbdpRqed0yX13cSUy5HzHvMDIs1ia+Q=
+			A1lB15mrw1su9xsGz9OB9iBICmPjF61UD9Xx1hSZ7Dc=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
