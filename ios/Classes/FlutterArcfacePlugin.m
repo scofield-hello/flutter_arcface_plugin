@@ -73,7 +73,7 @@
     //判断是否大于8小于14;
     float systemVersion = [[UIDevice currentDevice].systemVersion floatValue];
     NSLog(@"iOS版本:%f", systemVersion);
-    BOOL isSupport = systemVersion >= 8 && systemVersion < 14;
+    BOOL isSupport = systemVersion >= 8 && systemVersion < 16;
     _result([NSNumber numberWithBool:isSupport]);
 }
 
